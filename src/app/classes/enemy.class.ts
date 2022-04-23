@@ -2,11 +2,12 @@ import { Math, Scene } from 'phaser';
 import { EVENTS_NAME } from '../helpers/consts';
 import { Actor } from './actor.class';
 import { Player } from './player.class';
-
+import { Text } from './text.class';
 export class Enemy extends Actor {
   private target: Player;
-  private AGRESSOR_RADIUS = 100;
+  private AGRESSOR_RADIUS = 200;
   private attackHandler: () => void;
+  private hpValue: Text;
 
   constructor(
     scene: Phaser.Scene,
@@ -18,27 +19,30 @@ export class Enemy extends Actor {
   ) {
     super(scene, x, y, texture, frame);
     this.target = target;
+
     // ADD TO SCENE
     scene.add.existing(this);
     scene.physics.add.existing(this);
+
     // PHYSICS MODEL
-    this.getBody().setSize(16, 16);
+    this.getBody().setSize(12, 16);
     this.getBody().setOffset(0, 0);
 
     this.attackHandler = () => {
-      if (
-        Phaser.Math.Distance.BetweenPoints(
-          { x: this.x, y: this.y },
-          { x: this.target.x, y: this.target.y },
-        ) < this.target.width
+      if (Phaser.Math.Distance.BetweenPoints(
+        { x: this.x, y: this.y },
+        { x: this.target.x, y: this.target.y },
+      ) < this.target.width
       ) {
-        this.getDamage();
-        this.disableBody(true, false);
-        this.scene.time.delayedCall(300, () => {
-          this.destroy();
-        });
+        this.getDamage(10);
+
+
       }
     }
+
+    this.hpValue = new Text(this.scene, this.x, this.y - this.height, this.hp.toString())
+      .setFontSize(12)
+      .setOrigin(0.8, 0.5);
 
     // EVENTS
     this.scene.game.events.on(EVENTS_NAME.attack, this.attackHandler, this);
@@ -58,6 +62,22 @@ export class Enemy extends Actor {
       this.getBody().setVelocityY(this.target.y - this.y);
     } else {
       this.getBody().setVelocity(0);
+    }
+
+    this.hpValue.setPosition(this.x, this.y - this.height * 0.4);
+    this.hpValue.setOrigin(0.8, 0.5);
+  }
+
+  public override getDamage(value?: number): void {
+    super.getDamage(value);
+    this.hpValue.setText(this.hp.toString());
+
+    if (this.hp <= 0) {
+      this.disableBody(true, false);
+      this.scene.time.delayedCall(300, () => {
+        this.destroy();
+        this.hpValue.destroy();
+      });
     }
   }
 

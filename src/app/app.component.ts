@@ -10,7 +10,7 @@ type GameConfigExtended = Types.Core.GameConfig & {
 
 export const gameConfig: GameConfigExtended = {
   type: Phaser.WEBGL,
-  backgroundColor: '#351f1b',
+  backgroundColor: '#1C1117',
   height: 480,
   width: 640,
   scene: [

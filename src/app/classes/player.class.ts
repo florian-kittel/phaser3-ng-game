@@ -11,6 +11,7 @@ export class Player extends Actor {
   private keySpace: Input.Keyboard.Key;
 
   private hpValue: Text;
+  private velocity = 200;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, 'king');
@@ -27,12 +28,11 @@ export class Player extends Actor {
     });
 
     // PHYSICS
-    this.getBody().setSize(30, 30);
-    this.getBody().setOffset(8, 0);
+    this.getBody().setSize(32, 32);
+    // this.getBody().setOffset(8, 0);
 
-    this.hpValue = new Text(this.scene, this.x, this.y - this.height, this.hp.toString())
-      .setFontSize(12)
-      .setOrigin(0.8, 0.5);
+    this.hpValue = new Text(this.scene, x, y - this.height * 0.4, this.hp.toString())
+      .setFontSize(12);
 
     this.initAnimations();
 
@@ -45,24 +45,24 @@ export class Player extends Actor {
     this.getBody().setVelocity(0);
 
     if (this.keyW?.isDown) {
-      this.body.velocity.y = -110;
+      this.body.velocity.y = -this.velocity;
       !this.anims.isPlaying && this.anims.play('run', true);
     }
 
     if (this.keyA?.isDown) {
-      this.body.velocity.x = -110;
+      this.body.velocity.x = -this.velocity;
       this.checkFlip();
       this.getBody().setOffset(48, 15);
       !this.anims.isPlaying && this.anims.play('run', true);
     }
 
     if (this.keyS?.isDown) {
-      this.body.velocity.y = 110;
+      this.body.velocity.y = this.velocity;
       !this.anims.isPlaying && this.anims.play('run', true);
     }
 
     if (this.keyD?.isDown) {
-      this.body.velocity.x = 110;
+      this.body.velocity.x = this.velocity;
       this.checkFlip();
       this.getBody().setOffset(15, 15);
       !this.anims.isPlaying && this.anims.play('run', true);
