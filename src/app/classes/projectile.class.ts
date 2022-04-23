@@ -2,6 +2,7 @@ import { Physics, Tilemaps } from "phaser";
 
 export class Projectile extends Physics.Arcade.Sprite {
   public speed = 300;
+  public hasHit = false;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, 'projectile');
@@ -22,8 +23,20 @@ export class Projectile extends Physics.Arcade.Sprite {
   }
 
   justHit() {
+    console.log('justHit');
+
+    if (this.hasHit) {
+      return;
+    }
+
+    this.hasHit = true;
+
     this.setActive(false);
     this.setVisible(false);
+
+    setTimeout(() => {
+      this.destroy();
+    }, 200)
   }
 
   override preUpdate(time: number, delta: number) {

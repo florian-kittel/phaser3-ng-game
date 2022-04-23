@@ -16,6 +16,8 @@ export class Level1 extends Scene {
   private groundLayer!: Tilemaps.TilemapLayer;
   private enemies!: Enemy[];
 
+  public static enemyId = 0;
+
   private bullets!: any;
   // private arrow!: any;
   private chests!: Phaser.GameObjects.Sprite[];
@@ -34,10 +36,10 @@ export class Level1 extends Scene {
     this.initChests();
 
     this.initCamera();
-    this.initEnemies();
 
     this.bullets = new Projectiles(this, this.wallsLayer);
 
+    this.initEnemies();
     this.input.on('pointermove', () => {
     });
 
@@ -46,9 +48,19 @@ export class Level1 extends Scene {
     });
 
     this.physics.add.overlap(this.enemies, this.bullets, (enemy: any, bullet: any) => {
-      enemy.getDamage(28);
-      bullet.destroy();
+      if (!bullet.hasHit) {
+        const damage = Math.floor(Math.random() * (8 - 4) + 1);
+        enemy.getDamage(damage);
+        enemy.isAttacked = true;
+      }
+      bullet.justHit();
     });
+
+    this.physics.add.collider(this.enemies, this.bullets);
+
+    // setInterval(() => {
+    //   this.initEnemies()
+    // }, 10000);
   }
 
   override update(): void {
@@ -101,18 +113,21 @@ export class Level1 extends Scene {
       this.map.filterObjects('enemies', (point) => point.name === 'EnemyPoint'),
     );
 
+    const getRandomInt = () => Math.floor(Math.random() * 10) % 2;
+
     this.enemies = enemiesPoints.map((enemyPoint) =>
-      new Enemy(this, enemyPoint.x, enemyPoint.y, 'tiles_spr', this.player, 503)
-        .setName(enemyPoint.id.toString())
-        .setScale(2),
+      new Enemy(this, enemyPoint.x + 30, enemyPoint.y + 30, getRandomInt() ? 'zombie' : 'demon', this.player)
+        .setName(enemyPoint.id.toString() + Level1.enemyId++)
+        .setScale(1)
     );
+
+    this.physics.add.collider(this.player, this.enemies, (player) => {
+      (player as Player).getDamage(2);
+    });
 
     this.physics.add.collider(this.enemies, this.wallsLayer);
     this.physics.add.collider(this.enemies, this.enemies);
 
-    this.physics.add.collider(this.player, this.enemies, (player) => {
-      (player as Player).getDamage(1);
-    });
   }
 
 }

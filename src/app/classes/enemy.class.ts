@@ -1,4 +1,4 @@
-import { Math, Scene } from 'phaser';
+import { } from 'phaser';
 import { EVENTS_NAME } from '../helpers/consts';
 import { Actor } from './actor.class';
 import { Player } from './player.class';
@@ -8,25 +8,29 @@ export class Enemy extends Actor {
   private AGRESSOR_RADIUS = 200;
   private attackHandler: () => void;
   private hpValue: Text;
+  private textureName: string;
+
+  public isAttacked = false;
+  public speed = 50;
 
   constructor(
     scene: Phaser.Scene,
     x: number,
     y: number,
-    texture: string,
+    textureName: string,
     target: Player,
     frame?: string | number,
   ) {
-    super(scene, x, y, texture, frame);
+    super(scene, x, y, textureName, frame);
     this.target = target;
+    this.textureName = textureName;
 
     // ADD TO SCENE
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
     // PHYSICS MODEL
-    this.getBody().setSize(12, 16);
-    this.getBody().setOffset(0, 0);
+    this.setCircle(this.width / 2, 0, Math.floor(this.height / 6));
 
     this.attackHandler = () => {
       if (Phaser.Math.Distance.BetweenPoints(
@@ -35,41 +39,67 @@ export class Enemy extends Actor {
       ) < this.target.width
       ) {
         this.getDamage(10);
-
-
       }
     }
 
     this.hpValue = new Text(this.scene, this.x, this.y - this.height, this.hp.toString())
       .setFontSize(12)
-      .setOrigin(0.8, 0.5);
+      .setOrigin(0.5, 1);
 
     // EVENTS
     this.scene.game.events.on(EVENTS_NAME.attack, this.attackHandler, this);
     this.on('destroy', () => {
       this.scene.game.events.removeListener(EVENTS_NAME.attack, this.attackHandler);
     });
+
+    this.initAnimations();
   }
 
-  override preUpdate(): void {
+  override preUpdate(time: number, delta: number): void {
+    super.preUpdate(time, delta);
+
     if (
+      this.isAttacked ||
       Phaser.Math.Distance.BetweenPoints(
         { x: this.x, y: this.y },
         { x: this.target.x, y: this.target.y },
       ) < this.AGRESSOR_RADIUS
     ) {
-      this.getBody().setVelocityX(this.target.x - this.x);
-      this.getBody().setVelocityY(this.target.y - this.y);
+      this.move(true);
     } else {
-      this.getBody().setVelocity(0);
+      this.move(false);
     }
 
     this.hpValue.setPosition(this.x, this.y - this.height * 0.4);
-    this.hpValue.setOrigin(0.8, 0.5);
+  }
+
+  move(active = false) {
+    if (!active) {
+      this.getBody().setVelocity(0);
+      this.anims.play('idle', true);
+    } else {
+      let speedX = this.target.x - this.x;
+      let speedY = this.target.y - this.y;
+
+      speedX = speedX > this.speed ? this.speed : speedX;
+      speedX = speedX < -this.speed ? -this.speed : speedX;
+      speedY = speedY > this.speed ? this.speed : speedY;
+      speedY = speedY < -this.speed ? -this.speed : speedY;
+
+      this.getBody().setVelocityX(speedX);
+      this.getBody().setVelocityY(speedY);
+      this.anims.play('run', true);
+    }
+
   }
 
   public override getDamage(value?: number): void {
     super.getDamage(value);
+
+    if (value) {
+      this.hp = this.hp - value;
+    }
+
     this.hpValue.setText(this.hp.toString());
 
     if (this.hp <= 0) {
@@ -83,5 +113,26 @@ export class Enemy extends Actor {
 
   public setTarget(target: Player): void {
     this.target = target;
+  }
+
+  private initAnimations(): void {
+    this.anims.create({
+      key: 'idle',
+      frames: this.anims.generateFrameNames(this.textureName, {
+        prefix: 'idle-',
+        start: 0,
+        end: 3,
+      }),
+      frameRate: 6,
+    });
+    this.anims.create({
+      key: 'run',
+      frames: this.anims.generateFrameNames(this.textureName, {
+        prefix: 'run-',
+        start: 0,
+        end: 3,
+      }),
+      frameRate: 8,
+    });
   }
 }

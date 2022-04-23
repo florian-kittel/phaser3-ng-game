@@ -4,7 +4,7 @@ import { Actor } from "./actor.class";
 export class Weapon extends Physics.Arcade.Sprite {
 
   actor!: Actor;
-  radius = 28;
+  radius = 16;
   facingAngle = 0;
 
   constructor(scene: Phaser.Scene, actor: Actor) {
@@ -25,7 +25,6 @@ export class Weapon extends Physics.Arcade.Sprite {
   }
 
   onCreate() {
-    console.log('create');
   }
 
   override preUpdate(): void {
