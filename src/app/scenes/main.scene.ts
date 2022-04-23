@@ -23,6 +23,12 @@ export class MainScene extends Scene {
     this.load.atlas('zombie', 'zombie.png', 'zombie-atlas.json');
     this.load.atlas('knight-m', 'knight-m.png', 'knight-atlas.json');
 
+    this.load.audio('arrowShotSfx', 'sounds/shoot.ogg');
+    this.load.audio('arrowHitSfx', 'sounds/mixkit-hard-typewriter-hit-1364.ogg');
+    this.load.audio('pickCoinSfx', 'sounds/pick-coin.ogg');
+    this.load.audio('monsterGrowSfx', 'sounds/monster-1.ogg');
+    this.load.audio('monsterDeadSfx', 'sounds/monster-7.ogg');
+
     this.load.spritesheet('tiles_spr', 'dungeon-16-16.png', {
       frameWidth: 16,
       frameHeight: 16,

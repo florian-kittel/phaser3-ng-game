@@ -20,11 +20,11 @@ export class Projectile extends Physics.Arcade.Sprite {
 
     this.setVelocityX(direction.x);
     this.setVelocityY(direction.y);
+
+    this.scene.sound.play('arrowShotSfx');
   }
 
   justHit() {
-    console.log('justHit');
-
     if (this.hasHit) {
       return;
     }
@@ -34,9 +34,9 @@ export class Projectile extends Physics.Arcade.Sprite {
     this.setActive(false);
     this.setVisible(false);
 
-    setTimeout(() => {
-      this.destroy();
-    }, 200)
+    this.scene.sound.play('arrowHitSfx');
+
+    this.scene.time.addEvent({ delay: 200, callback: () => { this.destroy(); } });
   }
 
   override preUpdate(time: number, delta: number) {
@@ -84,9 +84,7 @@ export class Projectiles extends Physics.Arcade.Group {
     if (bullet) {
       bullet.fire(x, y, angle);
 
-      setTimeout(() => {
-        this.createProjectiles(1);
-      }, 200);
+      this.scene.time.addEvent({ delay: 200, callback: () => { this.createProjectiles(1); } });
 
       this.scene.physics.add.collider(bullet, this.worldCollider, () => {
         bullet.setActive(false);

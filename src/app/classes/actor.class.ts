@@ -36,11 +36,13 @@ export class Actor extends Physics.Arcade.Sprite {
     return this.hp;
   }
 
-  protected checkFlip(): void {
-    if (this.body.velocity.x < 0) {
+  protected checkFlip(x: number): void {
+    if (x < 0) {
       this.scaleX = -1;
-    } else {
+      this.body.offset.x = this.body.width;
+    } else if (x > 0) {
       this.scaleX = 1;
+      this.body.offset.x = 0;
     }
   }
 

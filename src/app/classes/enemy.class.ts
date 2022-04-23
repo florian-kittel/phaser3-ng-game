@@ -12,6 +12,7 @@ export class Enemy extends Actor {
 
   public isAttacked = false;
   public speed = 50;
+  private playAttackSound = false;
 
   constructor(
     scene: Phaser.Scene,
@@ -39,6 +40,7 @@ export class Enemy extends Actor {
       ) < this.target.width
       ) {
         this.getDamage(10);
+        this.scene.sound.play('monsterGrow1Sfx');
       }
     }
 
@@ -89,8 +91,17 @@ export class Enemy extends Actor {
       this.getBody().setVelocityX(speedX);
       this.getBody().setVelocityY(speedY);
       this.anims.play('run', true);
+      this.checkFlip(speedX);
     }
 
+  }
+
+  attack() {
+    if (!this.playAttackSound) {
+      this.playAttackSound = true;
+      this.scene.sound.play('monsterGrowSfx');
+      this.scene.time.addEvent({ delay: 500, callback: () => { this.playAttackSound = false; } });
+    }
   }
 
   public override getDamage(value?: number): void {
@@ -108,6 +119,8 @@ export class Enemy extends Actor {
         this.destroy();
         this.hpValue.destroy();
       });
+
+      this.scene.sound.play('monsterDeadSfx');
     }
   }
 

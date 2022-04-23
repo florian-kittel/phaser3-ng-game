@@ -49,7 +49,7 @@ export class Level1 extends Scene {
 
     this.physics.add.overlap(this.enemies, this.bullets, (enemy: any, bullet: any) => {
       if (!bullet.hasHit) {
-        const damage = Math.floor(Math.random() * (8 - 4) + 1);
+        const damage = Math.floor(Math.random() * (20 - 5) + 1);
         enemy.getDamage(damage);
         enemy.isAttacked = true;
       }
@@ -88,14 +88,15 @@ export class Level1 extends Scene {
     );
 
     this.chests = chestPoints.map(chestPoint =>
-      this.physics.add.sprite(chestPoint.x, chestPoint.y, 'tiles_spr', 595).setScale(1.5),
+      this.physics.add.sprite(chestPoint.x, chestPoint.y, 'tiles_spr', 595).setScale(1),
     );
 
     this.chests.forEach(chest => {
       this.physics.add.overlap(this.player, chest, (obj1, obj2) => {
         this.game.events.emit(EVENTS_NAME.chestLoot);
         obj2.destroy();
-        this.cameras.main.flash();
+        // this.cameras.main.flash();
+        this.sound.play('pickCoinSfx')
       });
     });
   }
@@ -121,8 +122,9 @@ export class Level1 extends Scene {
         .setScale(1)
     );
 
-    this.physics.add.collider(this.player, this.enemies, (player) => {
+    this.physics.add.collider(this.player, this.enemies, (player, enemy: any) => {
       (player as Player).getDamage(2);
+      enemy.attack()
     });
 
     this.physics.add.collider(this.enemies, this.wallsLayer);

@@ -26,7 +26,7 @@ export class Player extends Actor {
 
     this.initAnimations();
 
-    this.on('destroy', () => {});
+    this.on('destroy', () => { });
   }
 
   override update(): void {
@@ -43,7 +43,7 @@ export class Player extends Actor {
     if (this.keyA?.isDown) {
       isMoving = true;
       playerVelocity.x = -this.velocity;
-      this.checkFlip();
+
 
       this.anims.play('run', true);
     }
@@ -57,19 +57,22 @@ export class Player extends Actor {
     if (this.keyD?.isDown) {
       isMoving = true;
       playerVelocity.x = this.velocity;
-      this.checkFlip();
+
 
       this.anims.play('run', true);
     }
 
     if (!isMoving) {
       this.anims.play('idle', true);
+    } else {
+      this.checkFlip(playerVelocity.x);
     }
 
     this.hpValue.setPosition(this.x, this.y - this.height * 0.4);
     this.hpValue.setOrigin(0.5, 1);
 
     this.setVelocity(playerVelocity.x, playerVelocity.y);
+
     playerVelocity.normalize();
   }
 
