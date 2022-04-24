@@ -1,4 +1,4 @@
-import { Physics } from "phaser";
+import { Physics, Tilemaps } from "phaser";
 import { Actor } from "./actor.class";
 
 export const weaponProperties: { [name: string]: any } = {
@@ -10,6 +10,43 @@ export const weaponProperties: { [name: string]: any } = {
   }
 }
 
+export class WeaponGroup extends Physics.Arcade.Group {
+  weaponName: string;
+  weaponConfig: any;
+
+  weaponSprite!: Phaser.GameObjects.Sprite;
+  rechtangle!: Phaser.GameObjects.Rectangle;
+
+  actor!: Actor;
+
+  constructor(
+    scene: Phaser.Scene,
+    actor: Actor,
+    weaponName: string,) {
+
+    super(scene.physics.world, scene);
+
+    this.scene = scene;
+    this.actor = actor;
+    this.weaponName = weaponName;
+
+    if (weaponProperties[weaponName]) {
+      this.weaponConfig = weaponProperties[weaponName];
+    }
+
+    this.init();
+  }
+
+  init() {
+    this.weaponSprite = this.scene.add.sprite(this.actor.x, this.actor.y, this.weaponName);
+    this.rechtangle = this.scene.add.rectangle(this.weaponSprite.x, this.weaponSprite.y, this.weaponSprite.width, this.weaponSprite.height, 0x6666ff);
+
+    this.rechtangle.fillAlpha = 0.5;
+
+    // this.weaponSprite
+  }
+}
+
 export class Weapon extends Physics.Arcade.Sprite {
 
   actor!: Actor;
@@ -18,7 +55,7 @@ export class Weapon extends Physics.Arcade.Sprite {
   selectedWeapon!: any;
 
   constructor(scene: Phaser.Scene, actor: Actor, weapon: string = 'bow') {
-    super(scene, actor.x +16, actor.y, weapon);
+    super(scene, actor.x + 16, actor.y, weapon);
     this.scene = scene;
     this.actor = actor;
 

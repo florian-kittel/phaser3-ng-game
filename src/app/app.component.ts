@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Types } from 'phaser';
 import { Level1 } from './scenes/level-1';
+import { LevelTest } from './scenes/level-test';
 import { MainScene } from './scenes/main.scene';
 import { UIScene } from './scenes/ui';
 
@@ -16,6 +17,7 @@ export const gameConfig: GameConfigExtended = {
   scene: [
     MainScene,
     Level1,
+    LevelTest,
     UIScene,
   ],
   scale: {
@@ -27,7 +29,7 @@ export const gameConfig: GameConfigExtended = {
   physics: {
     default: 'arcade',
     arcade: {
-      debug: true,
+      debug: false,
     },
     matter: {
       enableSleeping: true,

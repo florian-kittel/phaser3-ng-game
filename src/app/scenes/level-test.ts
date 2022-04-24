@@ -6,7 +6,7 @@ import { Weapon } from '../classes/weapon.class';
 import { EVENTS_NAME } from '../helpers/consts';
 import { gameObjectsToObjectPoints } from '../helpers/gameobject-to-object-point';
 
-export class Level1 extends Scene {
+export class LevelTest extends Scene {
   private player!: Player;
   private weapon!: Weapon;
 
@@ -25,7 +25,7 @@ export class Level1 extends Scene {
   RADIUS = 32;
 
   constructor() {
-    super('level-1-scene');
+    super('level-test-scene');
   }
 
   create(): void {
@@ -33,6 +33,14 @@ export class Level1 extends Scene {
     this.player = new Player(this, 248, 160);
     this.weapon = new Weapon(this, this.player, 'bow');
     this.physics.add.collider(this.player, this.wallsLayer);
+
+    const box1 = this.add.rectangle(232, 200, 16, 16, 0x6666ff);
+    box1.fillAlpha = 0.5;
+    const box2 = this.add.rectangle(296, 136, 16, 16, 0xff6600);
+    box2.fillAlpha = 0.5;
+
+    this.physics.add.existing(box1);
+    this.physics.add.existing(box2);
 
     this.initChests();
     this.initCamera();
@@ -66,7 +74,7 @@ export class Level1 extends Scene {
   }
 
   private initMap(): void {
-    this.map = this.make.tilemap({ key: 'dungeon', tileWidth: 16, tileHeight: 16 });
+    this.map = this.make.tilemap({ key: 'dungeon-test', tileWidth: 16, tileHeight: 16 });
 
     this.tileset = this.map.addTilesetImage('dungeon', 'tiles');
 
@@ -112,11 +120,9 @@ export class Level1 extends Scene {
       this.map.filterObjects('enemies', (point) => point.name === 'EnemyPoint'),
     );
 
-    const getRandomInt = () => Math.floor(Math.random() * 10) % 2;
-
     this.enemies = enemiesPoints.map((enemyPoint) =>
-      new Enemy(this, enemyPoint.x + 30, enemyPoint.y + 30, getRandomInt() ? 'zombie' : 'demon', this.player)
-        .setName(enemyPoint.id.toString() + Level1.enemyId++)
+      new Enemy(this, enemyPoint.x, enemyPoint.y, 'chort', this.player)
+        .setName(enemyPoint.id.toString() + LevelTest.enemyId++)
         .setScale(1)
     );
 
@@ -127,7 +133,6 @@ export class Level1 extends Scene {
 
     this.physics.add.collider(this.enemies, this.wallsLayer);
     this.physics.add.collider(this.enemies, this.enemies);
-
   }
 
 }

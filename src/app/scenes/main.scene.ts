@@ -18,11 +18,17 @@ export class MainScene extends Scene {
 
     this.load.baseURL = 'assets/';
     this.load.tilemapTiledJSON('dungeon', 'dungeon.json');
+    this.load.tilemapTiledJSON('dungeon-test', 'dungeon-test.json');
 
     this.load.image('king', 'king.png');
     this.load.atlas('a-king', 'king_sprite_sheet.png', 'king_sprite_sheet-atlas.json');
-    this.load.atlas('demon', 'demon.png', 'demon-atlas.json');
-    this.load.atlas('zombie', 'zombie.png', 'zombie-atlas.json');
+
+    // enemies
+    this.load.atlas('demon', 'enemies/demon.png', 'enemies/demon-atlas.json');
+    this.load.atlas('zombie', 'enemies/zombie.png', 'enemies/zombie-atlas.json');
+    this.load.atlas('chort', 'enemies/chort.png', 'enemies/chort-atlas.json');
+
+    // heroe
     this.load.atlas('knight-m', 'knight-m.png', 'knight-atlas.json');
 
     this.load.audio('arrowShotSfx', 'sounds/shoot.ogg');
@@ -48,7 +54,7 @@ export class MainScene extends Scene {
   create() {
     console.log('Create scenes');
 
-    this.scene.start('level-1-scene');
+    this.scene.start('level-test-scene');
     this.scene.start('ui-scene');
   }
 

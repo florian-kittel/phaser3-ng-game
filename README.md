@@ -16,3 +16,19 @@ https://rexrainbow.github.io/phaser3-rex-notes/docs/site/
 Arrow Shot sound: https://opengameart.org/content/bow-arrow-shot
 
 Sounds: https://mixkit.co/free-sound-effects/hit/
+
+
+State Machine for Actor: https://www.mkelly.me/blog/phaser-finite-state-machine/
+
+
+### Effects:
+
+https://finalbossblues.itch.io/pixel-animations-and-effects
+https://creativekind.itch.io/magic-spell-effects-3
+
+
+## Tutorials
+
+https://phasertutorials.com/how-to-create-a-phaser-3-mmorpg-part-1/
+https://phasertutorials.com/how-to-create-a-phaser-3-mmorpg-part-2/
+https://phasertutorials.com/how-to-create-a-phaser-3-mmorpg-part-3/
