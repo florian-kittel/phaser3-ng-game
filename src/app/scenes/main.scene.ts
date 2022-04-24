@@ -17,6 +17,8 @@ export class MainScene extends Scene {
     console.log('Preload assets');
 
     this.load.baseURL = 'assets/';
+    this.load.tilemapTiledJSON('dungeon', 'dungeon.json');
+
     this.load.image('king', 'king.png');
     this.load.atlas('a-king', 'king_sprite_sheet.png', 'king_sprite_sheet-atlas.json');
     this.load.atlas('demon', 'demon.png', 'demon-atlas.json');
@@ -35,10 +37,12 @@ export class MainScene extends Scene {
     });
 
     this.load.image('tiles', 'dungeon-16-16.png');
-    this.load.image('projectile', 'arrow.png');
+    this.load.image('projectile', 'weapons/arrow.png');
+    this.load.image('bow', 'weapons/bow.png');
+    this.load.image('knightSword', 'weapons/weapon_knight_sword.png');
+
     this.load.image('arrow', 'green-arrow.png');
-    this.load.image('bow', 'bow.png');
-    this.load.tilemapTiledJSON('dungeon', 'dungeon.json');
+    this.load.atlas('coin', 'coin.png', 'coin-atlas.json');
   }
 
   create() {
