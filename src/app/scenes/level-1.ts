@@ -30,18 +30,24 @@ export class Level1 extends Scene {
 
   create(): void {
     this.initMap();
-    this.player = new Player(this, 250, 150);
-    this.weapon = new Weapon(this, this.player);
+    this.player = new Player(this, 248, 160);
+    this.weapon = new Weapon(this, this.player, 'bow');
     this.physics.add.collider(this.player, this.wallsLayer);
-    this.initChests();
 
+    const box1 = this.add.rectangle(232, 200, 16, 16, 0x6666ff);
+    box1.fillAlpha = 0.5;
+    const box2 = this.add.rectangle(296, 136, 16, 16, 0xff6600);
+    box2.fillAlpha = 0.5;
+
+    this.physics.add.existing(box1);
+    this.physics.add.existing(box2);
+
+    this.initChests();
     this.initCamera();
 
     this.bullets = new Projectiles(this, this.wallsLayer);
 
     this.initEnemies();
-    this.input.on('pointermove', () => {
-    });
 
     this.input.on('pointerdown', () => {
       this.bullets.fireBullet(this.weapon.x, this.weapon.y, this.weapon.angle);

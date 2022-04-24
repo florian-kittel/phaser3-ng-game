@@ -21,6 +21,7 @@ export class Player extends Actor {
     this.keyD = this.scene.input.keyboard.addKey('D');
 
     this.setCircle(this.width / 2, 0, this.height / 2 - 2);
+    this.setOrigin(0.5,0.7);
 
     this.hpValue = new Text(this.scene, x, y - this.height * 0.4, this.hp.toString()).setFontSize(12);
 
