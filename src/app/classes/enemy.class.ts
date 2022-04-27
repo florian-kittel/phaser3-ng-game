@@ -1,10 +1,11 @@
 import { } from 'phaser';
 import { EVENTS_NAME } from '../helpers/consts';
+import { ActorContainer } from './actor-container.class';
 import { Actor } from './actor.class';
 import { Player } from './player.class';
 import { Text } from './text.class';
 export class Enemy extends Actor {
-  private target: Player;
+  private target!: Player | ActorContainer;
   private AGRESSOR_RADIUS = 200;
   private attackHandler: () => void;
   private hpValue: Text;
@@ -19,11 +20,9 @@ export class Enemy extends Actor {
     x: number,
     y: number,
     textureName: string,
-    target: Player,
     frame?: string | number,
   ) {
     super(scene, x, y, textureName, frame);
-    this.target = target;
     this.textureName = textureName;
 
     // ADD TO SCENE
@@ -60,13 +59,13 @@ export class Enemy extends Actor {
   override preUpdate(time: number, delta: number): void {
     super.preUpdate(time, delta);
 
-    if (
+    if (this.target && (
       this.isAttacked ||
       Phaser.Math.Distance.BetweenPoints(
         { x: this.x, y: this.y },
         { x: this.target.x, y: this.target.y },
       ) < this.AGRESSOR_RADIUS
-    ) {
+    )) {
       this.move(true);
     } else {
       this.move(false);
@@ -124,8 +123,10 @@ export class Enemy extends Actor {
     }
   }
 
-  public setTarget(target: Player): void {
+  public setTarget(target: ActorContainer | Player): Enemy {
     this.target = target;
+
+    return this;
   }
 
   private initAnimations(): void {

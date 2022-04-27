@@ -10,6 +10,10 @@ https://shakuro.com/blog/phaser-js-a-step-by-step-tutorial-on-making-a-phaser-3-
 
 ## Resources
 
+Better Docu: https://rexrainbow.github.io/phaser3-rex-notes/docs/site/keyboardevents/
+
+Animation Tool: https://www.leshylabs.com/apps/sstool/
+
 https://0x72.itch.io/dungeontileset-ii
 https://rexrainbow.github.io/phaser3-rex-notes/docs/site/
 
@@ -23,6 +27,8 @@ State Machine for Actor: https://www.mkelly.me/blog/phaser-finite-state-machine/
 
 ### Effects:
 
+https://opengameart.org/content/weapon-slash-effect
+https://opengameart.org/content/animations-blood-hit-and-both-d
 https://finalbossblues.itch.io/pixel-animations-and-effects
 https://creativekind.itch.io/magic-spell-effects-3
 

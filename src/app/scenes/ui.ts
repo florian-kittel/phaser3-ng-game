@@ -23,7 +23,7 @@ export class UIScene extends Scene {
       }
     };
 
-    this.gameEndHandler = (status) => {
+    this.gameEndHandler = (status, level?: string) => {
       this.cameras.main.setBackgroundColor('rgba(0,0,0,0.6)');
       this.game.scene.pause('level-1-scene');
       this.gameEndPhrase = new Text(
@@ -45,7 +45,7 @@ export class UIScene extends Scene {
       this.input.on('pointerdown', () => {
         this.game.events.off(EVENTS_NAME.chestLoot, this.chestLootHandler);
         this.game.events.off(EVENTS_NAME.gameEnd, this.gameEndHandler);
-        this.scene.get('level-1-scene').scene.restart();
+        this.scene.get(level || 'level-1-scene').scene.restart();
         this.scene.restart();
       });
     };

@@ -115,9 +115,10 @@ export class Level1 extends Scene {
     const getRandomInt = () => Math.floor(Math.random() * 10) % 2;
 
     this.enemies = enemiesPoints.map((enemyPoint) =>
-      new Enemy(this, enemyPoint.x + 30, enemyPoint.y + 30, getRandomInt() ? 'zombie' : 'demon', this.player)
+      new Enemy(this, enemyPoint.x + 30, enemyPoint.y + 30, getRandomInt() ? 'zombie' : 'demon')
         .setName(enemyPoint.id.toString() + Level1.enemyId++)
         .setScale(1)
+        .setTarget(this.player)
     );
 
     this.physics.add.collider(this.player, this.enemies, (player, enemy: any) => {
