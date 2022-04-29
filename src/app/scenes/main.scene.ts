@@ -45,6 +45,7 @@ export class MainScene extends Scene {
     this.load.image('tiles', 'dungeon-16-16.png');
     this.load.image('projectile', 'weapons/arrow.png');
     this.load.image('bow', 'weapons/bow.png');
+    this.load.image('wip', 'weapons/wip_32.png');
     this.load.image('knightSword', 'weapons/weapon_knight_sword.png');
 
     this.load.image('arrow', 'green-arrow.png');

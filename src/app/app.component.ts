@@ -29,7 +29,7 @@ export const gameConfig: GameConfigExtended = {
   physics: {
     default: 'arcade',
     arcade: {
-      debug: false,
+      debug: true,
     },
     matter: {
       enableSleeping: true,

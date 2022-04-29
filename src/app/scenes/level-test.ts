@@ -45,7 +45,8 @@ export class LevelTest extends Scene {
     this.keyS = this.input.keyboard.addKey('S');
     this.keyD = this.input.keyboard.addKey('D');
 
-    this.player = new ActorContainer(this, 280, 168).activateFollowPointer().activateCurorMove();
+    this.player = new ActorContainer(this, 280, 168, this.wallsLayer)
+    .activateFollowPointer().activateCurorMove();
     this.physics.add.collider(this.player, this.wallsLayer);
 
     const box1 = this.add.rectangle(230, 152, 16, 16, 0x6666ff);
@@ -64,14 +65,16 @@ export class LevelTest extends Scene {
     this.initEnemies();
 
     this.input.on('pointerdown', () => {
-      this.bullets.fireBullet(this.player.x, this.player.y, this.player.weapon.angle);
+      this.player.attack();
+      // this.bullets.fireBullet(this.player.x, this.player.y, this.player.weapon.angle);
     });
 
     this.input.keyboard.on('keydown-' + 'SPACE', () => {
-      this.bullets.fireBullet(this.player.x, this.player.y, this.player.weapon.angle);
+      this.player.attack();
+      // this.bullets.fireBullet(this.player.x, this.player.y, this.player.weapon.angle);
     });
 
-    this.physics.add.overlap(this.enemies, this.bullets, (enemy: any, bullet: any) => {
+    this.physics.add.overlap(this.enemies, this.player.bullets, (enemy: any, bullet: any) => {
       if (!bullet.hasHit) {
         const damage = Math.floor(Math.random() * (20 - 5) + 1);
         enemy.getDamage(damage);
