@@ -1,250 +1,125 @@
-import { GameObjects, Physics, Tilemaps } from 'phaser';
-import { EVENTS_NAME, GameStatus } from '../helpers/consts';
-import { Weapon } from './weapon.class';
-import { Text } from './text.class';
-import { Projectiles } from './projectile.class';
+import { GameObjects, Physics } from "phaser";
+import { EVENTS_NAME } from "../helpers/consts";
+import { WeaponAxe } from "./weapon-axe.class";
+import { WeaponBow } from "./weapon-bow.class";
+import { WeaponKnightSword } from "./weapon-knight-sword.class";
+import { WeaponSpear } from "./weapon-spear.class";
+import { WeaponSword } from "./weapon-sword.class";
 
-export class ActorContainer extends GameObjects.Container {
-  protected hp = 100;
-  private hpValue: Text;
-  velocity = 150;
-  actor: GameObjects.Sprite;
-  weapon: Physics.Arcade.Sprite;
-  weaponContainer: GameObjects.Container;
-  collider!: Tilemaps.TilemapLayer;
+export class DebugContainer extends GameObjects.Container {
 
-  public bullets!: any;
-
-  target = {
-    x: 0,
-    y: 0
-  }
-
-  followPointer = false;
-  cursorMove = false;
-
-  radius = 16;
   facingAngle = 0;
 
-  weapons = {
-    bow: {
-      sprite: 'bow',
-      radius: 16,
-      rotation: 0,
-      bullet: 'arrow',
-    },
-    sword: {
-      sprite: 'knightSword',
-      radius: 20,
-      rotation: 90,
-      attackMove: true,
-      bullet: 'wip'
-    }
-  }
+  weaponContainer: GameObjects.Container;
+  weapon!: any;
 
-  selectedWeapon!: any;
+  showDebugElement = false;
+  triangle!: any;
 
-  private rectangle!: Phaser.GameObjects.Rectangle;
+  constructor(scene: Phaser.Scene, x: number | undefined, y: number | undefined) {
+    super(scene, x, y);
 
-  constructor(scene: Phaser.Scene, x: number, y: number, collider?: Tilemaps.TilemapLayer) {
-    super(scene, x, y, []);
-
-    this.setSize(16, 16);
+    this.setSize(32, 32);
     scene.add.existing(this);
     scene.physics.world.enable(this);
 
+    const body = this.body as unknown as Physics.Arcade.Body;
+    body.setCircle(16);
 
-    if (collider) {
-      this.collider = collider;
-      this.scene.physics.add.collider(this, this.collider)
-    }
+    this.addDebugObject();
+    this.add(this.scene.add.sprite(0, -8, 'knight-m', 0));
 
-    this.bullets = new Projectiles(this.scene, this.collider);
+    this.weaponContainer = this.scene.add.container(0, 0);
+    this.add(this.weaponContainer);
 
-    this.weaponContainer = new GameObjects.Container(this.scene, 8, 0);
+    this.scene.input.enableDebug(this.weaponContainer);
+    this.addWeaponBox('bow');
 
-    this.rectangle = this.scene.add.rectangle(8, 0, 8, 16, 0x7CFC00);
-    this.actor = this.scene.add.sprite(0, -8, 'knight-m', 0);
+    // Update Angle to pointer Position
+    this.followPointer();
+    this.pointerAction();
 
-    this.selectedWeapon = this.weapons['sword'];
-
-    this.weapon = new Physics.Arcade.Sprite(this.scene, 0, 0, this.selectedWeapon.sprite, 0);
-    scene.physics.world.enable(this.weapon);
-    this.weapon.body.setSize(8, 8);
-
-    scene.physics.world.enable(this.rectangle);
-
-    console.log(this.rectangle.body);
-    const body = this.rectangle.body as unknown as Physics.Arcade.Body;
-    // const sword = new Physics.Arcade.Sprite(this.scene, 0, 0, 'knightSword', 0);
-    // scene.physics.world.enable(sword);
-
-    // sword.rotation = Phaser.Math.DegToRad(-90);
-
-    // this.weaponContainer.add(this.rectangle);
-    // this.weaponContainer.add(sword);
-
-    this.weaponContainer.angle = 0;
-    // sword.setOrigin(0, 1)
-    // this.add(this.weaponContainer);
-    this.add(this.weapon);
-    this.add(this.actor);
-    // this.add(this.bullets);
-
-    this.initAnimations();
-
-    this.hpValue = new Text(this.scene, -this.width, 0 - this.height, this.hp.toString()).setFontSize(12);
-
-    // this.add(this.hpValue);
+    this.scene.game.events.on(EVENTS_NAME.changeWeapon, this.changeWeapon, this);
   }
 
-  private getBody() {
-    // Need new type reference with physics type otherwise complain that velocity not exists
-    return this.body as unknown as Physics.Arcade.Body;
+  addWeaponBox(weapon: string) {
+    this.weaponContainer.remove(this.weapon);
+
+    switch (weapon) {
+      case 'spear':
+        this.weapon = new WeaponSpear(this.scene, 0, 0);
+        break;
+      case 'bow':
+        this.weapon = new WeaponBow(this.scene, 0, 0);
+        break;
+      case 'knightSword':
+        this.weapon = new WeaponKnightSword(this.scene, 0, 0);
+        break;
+      case 'axe':
+        this.weapon = new WeaponAxe(this.scene, 0, 0);
+        break;
+
+      default:
+        this.weapon = new WeaponSword(this.scene, 0, 0);
+    }
+
+    this.weaponContainer.add(this.weapon);
+  }
+
+  changeWeapon(weapon: string) {
+    console.log(weapon);
+    this.addWeaponBox(weapon);
+  }
+
+  followPointer() {
+    this.scene.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
+      this.facingAngle = Phaser.Math.Angle.Between(this.x, this.y, pointer.worldX, pointer.worldY);
+    });
+  }
+
+  pointerAction() {
+    this.scene.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+      this.weapon.playWeaponAnimation();
+    });
+  }
+
+  updateTriangleRotation() {
+    Phaser.Math.RotateTo(this.triangle, 0, 0, this.facingAngle, 12);
+    this.triangle.rotation = this.facingAngle;
+  }
+
+  updateWeaponContainerRotation() {
+    Phaser.Math.RotateTo(this.weaponContainer, 0, 0, this.facingAngle, 0);
+    this.weaponContainer.rotation = this.facingAngle;
   }
 
   preUpdate(): void {
-    if (this.followPointer) {
-      this.updatePosition();
-    }
-  }
-
-  override update(...args: any[]): void {
-
-  }
-
-  public getDamage(value?: number): void {
-    this.hpValue.setText(this.hp.toString());
-
-    if (this.hp <= 0) {
-      this.scene.game.events.emit(EVENTS_NAME.gameEnd, GameStatus.LOSE, this.scene.scene.key);
-    } else { }
-    this.scene.tweens.add({
-      targets: this,
-      duration: 100,
-      repeat: 3,
-      yoyo: true,
-      alpha: 0.5,
-      onStart: () => {
-        if (value) {
-          this.hp = this.hp - value;
-        }
-      },
-      onComplete: () => {
-        this.setAlpha(1);
-      },
-    });
-
-  }
-
-  move(directionX: number, directionY: number, flip = false) {
-    const body = this.getBody();
-
-    let playerVelocity = new Phaser.Math.Vector2();
-    playerVelocity.x = directionX;
-    playerVelocity.y = directionY;
-
-    playerVelocity.normalize();
-    playerVelocity.scale(this.velocity);
-
-    body.setVelocity(playerVelocity.x, playerVelocity.y);
-
-    if (!this.followPointer) {
-      this.actor.flipX = playerVelocity.x < 0;
-    }
-  }
-
-  override setState(state: string) {
-    this.actor.anims.play(state, true);
-    return this;
-  }
-
-  activateFollowPointer() {
-    this.followPointer = true;
-    this.scene.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
-      this.setWeaponAngle(pointer);
-
-      this.actor.flipX = this.x > pointer.worldX;
-
-      this.bringToTop(this.y > pointer.worldY ? this.actor : this.weapon);
-    });
-
-    return this;
-  }
-
-  activateCurorMove() {
-    this.cursorMove = true;
-
-    return this;
-  }
-
-  addWeapon(weapon: Weapon) {
-    this.weapon = weapon;
-    this.add(this.weapon);
-  }
-
-  setWeaponAngle(pointer: Phaser.Input.Pointer) {
-    this.target.x = pointer.worldX;
-    this.target.y = pointer.worldY;
-    this.facingAngle = Phaser.Math.Angle.Between(this.x, this.y, pointer.worldX, pointer.worldY);
-  }
-
-  updatePosition() {
-    this.weapon.setRotation(this.facingAngle + Phaser.Math.DegToRad(this.selectedWeapon.rotation));
-    this.weapon = Phaser.Math.RotateTo(this.weapon, 0, 0, this.facingAngle, this.selectedWeapon.radius);    // this.weapon.x = 0;
-  }
-
-  attack() {
-    if (this.followPointer) {
-
-      this.bullets.fireBullet(this.x, this.y, this.weapon.angle - this.selectedWeapon.rotation);
-
-      let playerVelocity = new Phaser.Math.Vector2();
-      playerVelocity.x = this.target.x - this.x;
-      playerVelocity.y = this.target.y - this.y;
-
-      playerVelocity.normalize();
-      playerVelocity.scale(32);
-
-      if (this.selectedWeapon.attackMove) {
-        this.followPointer = false;
-        this.scene.tweens.add({
-          targets: this.weapon,
-          ease: "Linear", // 'Cubic', 'Elastic', 'Bounce', 'Back'
-          duration: 100,
-          repeat: 0,
-          yoyo: true,
-          alpha: .5,
-          x: playerVelocity.x,
-          y: playerVelocity.y,
-          onComplete: () => {
-            this.weapon.setAlpha(1);
-            this.followPointer = true;
-          },
-        });
+    if (!this.weapon.isAttacking) {
+      if (this.showDebugElement) {
+        this.updateTriangleRotation();
       }
+      this.updateWeaponContainerRotation();
     }
-
   }
 
-  private initAnimations(): void {
-    this.actor.anims.create({
-      key: 'idle',
-      frames: this.actor.anims.generateFrameNames('knight-m', {
-        prefix: 'idle-',
-        start: 0,
-        end: 3,
-      }),
-      frameRate: 6,
-    });
-    this.actor.anims.create({
-      key: 'run',
-      frames: this.actor.anims.generateFrameNames('knight-m', {
-        prefix: 'run-',
-        start: 0,
-        end: 3,
-      }),
-      frameRate: 12,
-    });
+  addDebugObject() {
+    this.showDebugElement = true;
+    // Background Circle
+    const obj1 = this.scene.add.circle(0, 0, 8, 0xff6600);
+    obj1.setStrokeStyle(1, 0xff0000);
+    obj1.alpha = 0.5;
+    this.add(obj1);
+
+    // Facing Triangle
+    this.triangle = this.scene.add.triangle(
+      12, 0,
+      0, 0,
+      8, 4,
+      0, 8,
+      0xff6600
+    );
+    this.triangle.setStrokeStyle(1, 0xff0000);
+    this.triangle.setAlpha(0.5)
+    this.add(this.triangle);
   }
 }

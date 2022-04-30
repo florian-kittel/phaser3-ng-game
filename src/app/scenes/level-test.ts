@@ -1,5 +1,6 @@
 import { Physics, Scene, Tilemaps } from 'phaser';
-import { ActorContainer } from '../classes/actor-container.class';
+import { ActorContainer } from '../classes/actor-container-old.class';
+import { DebugContainer } from '../classes/actor-container.class';
 import { Enemy } from '../classes/enemy.class';
 import { Player } from '../classes/player.class';
 import { Projectiles } from '../classes/projectile.class';
@@ -44,6 +45,8 @@ export class LevelTest extends Scene {
     this.keyA = this.input.keyboard.addKey('A');
     this.keyS = this.input.keyboard.addKey('S');
     this.keyD = this.input.keyboard.addKey('D');
+
+    new DebugContainer(this, 320, 192);
 
     this.player = new ActorContainer(this, 280, 168, this.wallsLayer)
     .activateFollowPointer().activateCurorMove();

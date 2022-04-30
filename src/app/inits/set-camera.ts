@@ -1,5 +1,5 @@
 import { Scene } from "phaser";
-import { ActorContainer } from "../classes/actor-container.class";
+import { ActorContainer } from "../classes/actor-container-old.class";
 import { Actor } from "../classes/actor.class";
 
 export function initCamera(scene: Scene, follow: ActorContainer | Actor): Scene {

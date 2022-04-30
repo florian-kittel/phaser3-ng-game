@@ -1,6 +1,6 @@
 import { } from 'phaser';
 import { EVENTS_NAME } from '../helpers/consts';
-import { ActorContainer } from './actor-container.class';
+import { ActorContainer } from './actor-container-old.class';
 import { Actor } from './actor.class';
 import { Player } from './player.class';
 import { Text } from './text.class';

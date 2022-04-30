@@ -1,4 +1,4 @@
-import { Scene } from 'phaser';
+import { GameObjects, Physics, Scene } from 'phaser';
 import { gameConfig } from '../app.component';
 import { Score, ScoreOperations } from '../classes/scores.class';
 import { EVENTS_NAME, GameStatus } from '../helpers/consts';
@@ -12,6 +12,11 @@ export class UIScene extends Scene {
 
   private gameEndPhrase!: Text;
   private gameEndHandler: (status: GameStatus) => void;
+
+  private weapons = {
+    bow: undefined,
+    sword: undefined,
+  };
 
   constructor() {
     super('ui-scene');
@@ -49,10 +54,37 @@ export class UIScene extends Scene {
         this.scene.restart();
       });
     };
+
+
+    // this.weapons.bow
   }
   create(): void {
     this.score = new Score(this, 20, 20, 0);
     this.initListeners();
+
+    const container = this.add.container(20, 100);
+    container.add(this.add.sprite(0, 0, 'bow', 0).setInteractive());
+    container.add(this.add.sprite(0, 40, 'sword', 0).setInteractive());
+    container.add(this.add.sprite(0, 80, 'knightSword', 0).setInteractive());
+    container.add(this.add.sprite(0, 120, 'spear', 0).setInteractive());
+    container.add(this.add.sprite(0, 160, 'hammer', 0).setInteractive());
+    container.add(this.add.sprite(0, 200, 'axe', 0).setInteractive());
+
+    container.setInteractive().setScale(2);
+
+    container.iterate((child: GameObjects.Sprite) => {
+      child.on('pointerdown', () => {
+        this.game.events.emit(EVENTS_NAME.changeWeapon, child.texture.key);
+      });
+
+      child.on('pointerover', () => {
+        child.setTint(0x44ff44);
+      });
+
+      child.on('pointerout', () => {
+        child.clearTint();
+      });
+    })
   }
 
   private initListeners(): void {
