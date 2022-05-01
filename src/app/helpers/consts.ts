@@ -2,7 +2,7 @@ export enum EVENTS_NAME {
   chestLoot = 'chest-loot',
   attack = 'attack',
   gameEnd = 'gameEnd',
-  changeWeapon = 'changeWeapon',
+  setWeapon = 'setWeapon',
 }
 
 export enum GameStatus {

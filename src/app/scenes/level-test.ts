@@ -1,10 +1,8 @@
-import { Physics, Scene, Tilemaps } from 'phaser';
-import { ActorContainer } from '../classes/actor-container-old.class';
-import { DebugContainer } from '../classes/actor-container.class';
+import { Scene, Tilemaps } from 'phaser';
+import { ActorKnight } from '../classes/actor-knight.class';
 import { Enemy } from '../classes/enemy.class';
 import { Player } from '../classes/player.class';
 import { Projectiles } from '../classes/projectile.class';
-import { Weapon } from '../classes/weapon.class';
 import { EVENTS_NAME } from '../helpers/consts';
 import { gameObjectsToObjectPoints } from '../helpers/gameobject-to-object-point';
 import { initCamera } from '../inits/set-camera';
@@ -16,7 +14,7 @@ export class LevelTest extends Scene {
   private keyS!: Phaser.Input.Keyboard.Key;
   private keyD!: Phaser.Input.Keyboard.Key;
 
-  private player!: ActorContainer;
+  private player!: ActorKnight;
 
   private map!: Tilemaps.Tilemap;
   private tileset!: Tilemaps.Tileset;
@@ -46,10 +44,13 @@ export class LevelTest extends Scene {
     this.keyS = this.input.keyboard.addKey('S');
     this.keyD = this.input.keyboard.addKey('D');
 
-    new DebugContainer(this, 320, 192);
+    this.player = new ActorKnight(this, 320, 192, this.wallsLayer)
 
-    this.player = new ActorContainer(this, 280, 168, this.wallsLayer)
-    .activateFollowPointer().activateCurorMove();
+      .followPointer().pointerAction();
+
+    // this.player = new ActorContainer(this, 280, 168, this.wallsLayer)
+    //   .activateFollowPointer()
+    //   .activateCurorMove();
     this.physics.add.collider(this.player, this.wallsLayer);
 
     const box1 = this.add.rectangle(230, 152, 16, 16, 0x6666ff);
@@ -67,15 +68,15 @@ export class LevelTest extends Scene {
 
     this.initEnemies();
 
-    this.input.on('pointerdown', () => {
-      this.player.attack();
-      // this.bullets.fireBullet(this.player.x, this.player.y, this.player.weapon.angle);
-    });
+    // this.input.on('pointerdown', () => {
+    //   this.player.attack();
+    //   // this.bullets.fireBullet(this.player.x, this.player.y, this.player.weapon.angle);
+    // });
 
-    this.input.keyboard.on('keydown-' + 'SPACE', () => {
-      this.player.attack();
-      // this.bullets.fireBullet(this.player.x, this.player.y, this.player.weapon.angle);
-    });
+    // this.input.keyboard.on('keydown-' + 'SPACE', () => {
+    //   this.player.attack();
+    //   // this.bullets.fireBullet(this.player.x, this.player.y, this.player.weapon.angle);
+    // });
 
     this.physics.add.overlap(this.enemies, this.player.bullets, (enemy: any, bullet: any) => {
       if (!bullet.hasHit) {
@@ -95,36 +96,7 @@ export class LevelTest extends Scene {
   }
 
   override update(): void {
-    // this.player.update();
-
-    if (this.player) {
-      const actor = this.player.body as unknown as Physics.Arcade.Body;
-      actor.setVelocity(0);
-
-      if (this.cursors) {
-        let moveX = 0;
-        let moveY = 0;
-
-        if (this.cursors.left.isDown || this.keyA.isDown) {
-          moveX = -1;
-        } else if (this.cursors.right.isDown || this.keyD.isDown) {
-          moveX = 1;
-        }
-
-        if (this.cursors.up.isDown || this.keyW.isDown) {
-          moveY = -1;
-        } else if (this.cursors.down.isDown || this.keyS.isDown) {
-          moveY = 1;
-        }
-
-        this.player.setState((moveX || moveY) ? 'run' : 'idle');
-
-        if (moveX || moveY) {
-          this.player.move(moveX, moveY);
-        }
-
-      }
-    }
+    this.player.update();
   }
 
   private initMap(): void {

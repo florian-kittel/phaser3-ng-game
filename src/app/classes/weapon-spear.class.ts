@@ -32,7 +32,8 @@ export class WeaponSpear extends Physics.Arcade.Sprite {
     this.isAttacking = true;
     this.scene.tweens.add({
       targets: this,
-      duration: 100,
+      duration: 150,
+      ease: Phaser.Math.Easing.Quadratic.In,
       yoyo: true,
       x: config.distance * 4,
       onComplete: () => {

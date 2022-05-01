@@ -13,11 +13,6 @@ export class UIScene extends Scene {
   private gameEndPhrase!: Text;
   private gameEndHandler: (status: GameStatus) => void;
 
-  private weapons = {
-    bow: undefined,
-    sword: undefined,
-  };
-
   constructor() {
     super('ui-scene');
 
@@ -55,26 +50,26 @@ export class UIScene extends Scene {
       });
     };
 
-
-    // this.weapons.bow
   }
   create(): void {
     this.score = new Score(this, 20, 20, 0);
     this.initListeners();
 
-    const container = this.add.container(20, 100);
-    container.add(this.add.sprite(0, 0, 'bow', 0).setInteractive());
-    container.add(this.add.sprite(0, 40, 'sword', 0).setInteractive());
-    container.add(this.add.sprite(0, 80, 'knightSword', 0).setInteractive());
-    container.add(this.add.sprite(0, 120, 'spear', 0).setInteractive());
-    container.add(this.add.sprite(0, 160, 'hammer', 0).setInteractive());
-    container.add(this.add.sprite(0, 200, 'axe', 0).setInteractive());
+    const container = this.add.container(40, 100);
+    const rowSize = 20;
 
-    container.setInteractive().setScale(2);
+    container.add(this.add.sprite(0, 0, 'bow', 0).setAngle(45).setInteractive());
+    container.add(this.add.sprite(0, rowSize * 1, 'sword', 0).setAngle(45).setInteractive());
+    container.add(this.add.sprite(0, rowSize * 2, 'knightSword', 0).setAngle(45).setInteractive());
+    container.add(this.add.sprite(0, rowSize * 3, 'spear', 0).setAngle(45).setInteractive());
+    container.add(this.add.sprite(0, rowSize * 4, 'hammer', 0).setAngle(45).setInteractive());
+    container.add(this.add.sprite(0, rowSize * 5, 'axe', 0).setAngle(45).setInteractive());
+
+    container.setScale(2);
 
     container.iterate((child: GameObjects.Sprite) => {
       child.on('pointerdown', () => {
-        this.game.events.emit(EVENTS_NAME.changeWeapon, child.texture.key);
+        this.game.events.emit(EVENTS_NAME.setWeapon, child.texture.key);
       });
 
       child.on('pointerover', () => {

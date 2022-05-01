@@ -1,49 +1,124 @@
-import { GameObjects, Physics } from "phaser";
-import { EVENTS_NAME } from "../helpers/consts";
+import { GameObjects, Physics, Tilemaps } from "phaser";
+import { EVENTS_NAME, GameStatus } from "../helpers/consts";
+import { Actor } from "./actor.class";
+import { Projectiles } from "./projectile.class";
 import { WeaponAxe } from "./weapon-axe.class";
 import { WeaponBow } from "./weapon-bow.class";
+import { WeaponHammer } from "./weapon-hammer.class";
 import { WeaponKnightSword } from "./weapon-knight-sword.class";
 import { WeaponSpear } from "./weapon-spear.class";
 import { WeaponSword } from "./weapon-sword.class";
 
-export class DebugContainer extends GameObjects.Container {
+import { Text } from './text.class';
+
+/**
+ * Todo:
+ * Extend player container to use that container
+ * / Add camara follow
+ * / Add cursor move
+ * / Add Animation
+ * / Add Projectile on the fly
+ * Add Projectile type based on Weapon
+ * Add diffrent Hitareas and mass
+ */
+
+export class ActorContainer extends GameObjects.Container {
 
   facingAngle = 0;
+  bodyDimension = 6;
 
   weaponContainer: GameObjects.Container;
   weapon!: any;
 
+  collider!: Tilemaps.TilemapLayer;
+  bullets!: any;
+
   showDebugElement = false;
   triangle!: any;
 
-  constructor(scene: Phaser.Scene, x: number | undefined, y: number | undefined) {
+  actor!: Actor;
+
+  velocity = 100;
+  isMoving = false;
+
+  getsDamage = false;
+
+  private hpValue!: Text;
+  hp = 100;
+
+  target = {
+    x: 0,
+    y: 0
+  }
+
+  constructor(scene: Phaser.Scene, x: number | undefined, y: number | undefined, collider?: Tilemaps.TilemapLayer) {
     super(scene, x, y);
 
-    this.setSize(32, 32);
+    this.setSize(this.bodyDimension, this.bodyDimension);
     scene.add.existing(this);
     scene.physics.world.enable(this);
+    this.setDimensions();
 
-    const body = this.body as unknown as Physics.Arcade.Body;
-    body.setCircle(16);
+    if (collider) {
+      this.collider = collider;
+      this.scene.physics.add.collider(this, this.collider)
+    }
 
     this.addDebugObject();
-    this.add(this.scene.add.sprite(0, -8, 'knight-m', 0));
 
     this.weaponContainer = this.scene.add.container(0, 0);
     this.add(this.weaponContainer);
 
-    this.scene.input.enableDebug(this.weaponContainer);
-    this.addWeaponBox('bow');
 
-    // Update Angle to pointer Position
-    this.followPointer();
-    this.pointerAction();
+    this.bullets = new Projectiles(this.scene, this.collider);
 
-    this.scene.game.events.on(EVENTS_NAME.changeWeapon, this.changeWeapon, this);
+    this.setHpValueBar();
+
+    this.scene.game.events.on(EVENTS_NAME.setWeapon, this.setWeapon, this);
   }
 
-  addWeaponBox(weapon: string) {
-    this.weaponContainer.remove(this.weapon);
+  setDimensions() {
+    const body = this.getBody();
+    body.setBounce(1, 1).setCollideWorldBounds(true);
+    body.setCircle(this.bodyDimension);
+    body.offset.y = -this.bodyDimension / 2;
+    body.offset.x = -this.bodyDimension / 2;
+  }
+
+  setHpValueBar() {
+    this.hpValue = new Text(this.scene, 0, 0, this.hp.toString()).setFontSize(12);
+    this.hpValue.setOrigin(.5, 1);
+    this.hpValue.y = -18;
+    this.add(this.hpValue);
+  }
+
+  public getBody() {
+    // Need new type reference with physics type otherwise complain that velocity not exists
+    return this.body as unknown as Physics.Arcade.Body;
+  }
+
+  public move(directionX: number, directionY: number, flip = false) {
+    const body = this.getBody();
+
+    let playerVelocity = new Phaser.Math.Vector2();
+    playerVelocity.x = directionX;
+    playerVelocity.y = directionY;
+
+    playerVelocity.normalize();
+    playerVelocity.scale(this.velocity);
+
+    body.setVelocity(playerVelocity.x, playerVelocity.y);
+
+    if (this.actor && this.isMoving) {
+      this.actor.setState('run');
+    }
+  }
+
+  setWeapon(weapon?: string) {
+    if (this.weapon) {
+      this.weaponContainer.remove(this.weapon);
+      this.weapon.destroy();
+    }
 
     switch (weapon) {
       case 'spear':
@@ -58,6 +133,9 @@ export class DebugContainer extends GameObjects.Container {
       case 'axe':
         this.weapon = new WeaponAxe(this.scene, 0, 0);
         break;
+      case 'hammer':
+        this.weapon = new WeaponHammer(this.scene, 0, 0);
+        break;
 
       default:
         this.weapon = new WeaponSword(this.scene, 0, 0);
@@ -66,21 +144,82 @@ export class DebugContainer extends GameObjects.Container {
     this.weaponContainer.add(this.weapon);
   }
 
-  changeWeapon(weapon: string) {
-    console.log(weapon);
-    this.addWeaponBox(weapon);
+  attack() {
+    this.bullets.fireBullet(this.x, this.y, Phaser.Math.RadToDeg(this.facingAngle));
   }
 
   followPointer() {
     this.scene.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
+
       this.facingAngle = Phaser.Math.Angle.Between(this.x, this.y, pointer.worldX, pointer.worldY);
+
+      this.target.x = pointer.worldX;
+      this.target.y = pointer.worldY;
+      this.actor.flipX = this.x > pointer.worldX;
+      this.bringToTop(this.y > pointer.worldY ? this.actor : this.weaponContainer);
     });
+
+    return this;
   }
 
   pointerAction() {
+    let timer: Phaser.Time.TimerEvent;
+    const attack = () => {
+      if (this.weapon && !this.weapon.isAttacking) {
+        this.weapon.playWeaponAnimation();
+        this.attack();
+      }
+    }
+
     this.scene.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-      this.weapon.playWeaponAnimation();
+      if (this.weapon) {
+        attack();
+
+        timer = this.scene.time.addEvent({
+          delay: 100,
+          callback: () => {
+            attack();
+          },
+          loop: true
+        })
+      }
     });
+
+    this.scene.input.on('pointerup', (pointer: Phaser.Input.Pointer) => {
+      if (this.weapon && timer) {
+        timer.remove();
+      }
+    });
+
+    return this;
+  }
+
+  public getDamage(value: number): void {
+    if (!this.getsDamage) {
+      this.getsDamage = true;
+      this.hpValue.setText(this.hp.toString());
+      if (this.hp > 0) {
+        this.scene.tweens.add({
+          targets: this.actor,
+          duration: 50,
+          repeat: 2,
+          yoyo: true,
+          alpha: 0.5,
+          onStart: () => {
+            if (value) {
+              this.hp = this.hp - value;
+            }
+          },
+          onComplete: () => {
+            this.setAlpha(1);
+            this.getsDamage = false;
+          },
+        });
+      } else {
+        this.scene.game.events.emit(EVENTS_NAME.gameEnd, GameStatus.LOSE, 'level-test-scene');
+        this.scene.scene.stop();
+      }
+    }
   }
 
   updateTriangleRotation() {
@@ -93,12 +232,19 @@ export class DebugContainer extends GameObjects.Container {
     this.weaponContainer.rotation = this.facingAngle;
   }
 
+
   preUpdate(): void {
-    if (!this.weapon.isAttacking) {
+    if (this.weapon && !this.weapon.isAttacking) {
       if (this.showDebugElement) {
         this.updateTriangleRotation();
       }
       this.updateWeaponContainerRotation();
+    }
+
+    if (this.isMoving) {
+      this.actor.setState('run');
+    } else {
+      this.actor.setState('idle');
     }
   }
 

@@ -1,6 +1,7 @@
 import { } from 'phaser';
 import { EVENTS_NAME } from '../helpers/consts';
-import { ActorContainer } from './actor-container-old.class';
+import { ActorContainer } from './actor-container.class';
+
 import { Actor } from './actor.class';
 import { Player } from './player.class';
 import { Text } from './text.class';
@@ -123,7 +124,7 @@ export class Enemy extends Actor {
     }
   }
 
-  public setTarget(target: ActorContainer | Player): Enemy {
+  public setTarget(target:any): Enemy {
     this.target = target;
 
     return this;

@@ -25,5 +25,14 @@ export class WeaponBow extends Physics.Arcade.Sprite {
     if (this.isAttacking) {
       return;
     }
+
+    this.isAttacking = true;
+
+    this.scene.time.addEvent({
+      delay: 200,
+      callback: () => {
+        this.isAttacking = false;
+      }
+    })
   }
 }

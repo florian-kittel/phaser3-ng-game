@@ -34,6 +34,7 @@ export class WeaponKnightSword extends Physics.Arcade.Sprite {
     this.scene.tweens.add({
       targets: this,
       duration: 300,
+      ease: Phaser.Math.Easing.Circular.In,
       repeat: 0,
       yoyo: false,
       rotation: targetAngle,
