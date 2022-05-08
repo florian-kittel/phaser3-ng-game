@@ -63,7 +63,7 @@ export class Enemy extends Actor {
   override preUpdate(time: number, delta: number): void {
     super.preUpdate(time, delta);
 
-    if (this.target && (
+    if (!this.isHit && this.target && (
       this.isAttacked ||
       Phaser.Math.Distance.BetweenPoints(
         { x: this.x, y: this.y },
@@ -110,9 +110,6 @@ export class Enemy extends Actor {
   public override getDamage(value?: number): void {
     super.getDamage(value);
 
-    if (value) {
-      this.hp = this.hp - value;
-    }
 
     this.hpValue.setText(this.hp.toString());
 

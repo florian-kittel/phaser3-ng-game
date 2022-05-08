@@ -2,6 +2,7 @@ import { Physics } from 'phaser';
 
 export class Actor extends Physics.Arcade.Sprite {
   hp = 100;
+  isHit = false;
 
   constructor(scene: Phaser.Scene, x: number, y: number, texture: string, frame?: string | number) {
     super(scene, x, y, texture, frame);
@@ -16,19 +17,25 @@ export class Actor extends Physics.Arcade.Sprite {
   }
 
   public getDamage(value?: number): void {
+    if (this.isHit) {
+      return;
+    }
+
+    if (value) {
+      this.hp = this.hp - value;
+    }
+
+    this.isHit = true;
     this.scene.tweens.add({
       targets: this,
-      duration: 100,
-      repeat: 3,
+      duration: 80,
+      repeat: 2,
       yoyo: true,
       alpha: 0.5,
-      onStart: () => {
-        if (value) {
-          this.hp = this.hp - value;
-        }
-      },
+      onStart: () => { },
       onComplete: () => {
         this.setAlpha(1);
+        this.isHit = false;
       },
     });
   }

@@ -34,6 +34,7 @@ export class ActorContainer extends GameObjects.Container {
   bullets!: any;
 
   hitbox!: any;
+  hitboxes!: Phaser.GameObjects.Group;
 
   showDebugElement = false;
   triangle!: any;
@@ -48,6 +49,8 @@ export class ActorContainer extends GameObjects.Container {
   private hpValue!: Text;
   hp = 100;
 
+  damage = 5;
+
   target = {
     x: 0,
     y: 0
@@ -60,6 +63,8 @@ export class ActorContainer extends GameObjects.Container {
     scene.add.existing(this);
     scene.physics.world.enable(this);
     this.setDimensions();
+
+    this.hitboxes = new GameObjects.Group(this.scene);
 
     if (collider) {
       this.collider = collider;
@@ -121,6 +126,7 @@ export class ActorContainer extends GameObjects.Container {
 
       if (this.hitbox) {
         this.weaponContainer.remove(this.hitbox);
+        this.hitbox.destroy();
       }
 
       this.weapon.destroy();
@@ -149,9 +155,12 @@ export class ActorContainer extends GameObjects.Container {
 
     this.weaponContainer.add(this.weapon);
 
+    this.damage = this.weapon.damage;
+
     if (this.weapon.hitbox) {
       this.hitbox = this.weapon.hitbox;
       this.weaponContainer.add(this.hitbox);
+      this.hitboxes.add(this.hitbox);
     }
   }
 

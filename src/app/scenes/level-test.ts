@@ -7,8 +7,6 @@ import { EVENTS_NAME } from '../helpers/consts';
 import { gameObjectsToObjectPoints } from '../helpers/gameobject-to-object-point';
 import { initCamera } from '../inits/set-camera';
 
-import Bullet from 'phaser3-rex-plugins/plugins/bullet.js';
-
 export class LevelTest extends Scene {
   private player!: ActorKnight;
 
@@ -34,7 +32,7 @@ export class LevelTest extends Scene {
 
     this.player = new ActorKnight(this, 320, 192, this.wallsLayer).followPointer().pointerAction();
     this.physics.add.collider(this.player, this.wallsLayer);
-    this.player.setWeapon('hammer');
+    this.player.setWeapon('sword');
 
     const box1 = this.add.rectangle(230, 152, 16, 16, 0x6666ff);
     this.physics.add.existing(box1);
@@ -56,9 +54,9 @@ export class LevelTest extends Scene {
 
     this.initEnemies();
 
-    this.physics.add.overlap(this.enemies, this.player.weapon.hitbox, (enemy: any, bullet: any) => {
-      const damage = Math.floor(Math.random() * (20 - 5) + 1);
-      enemy.getDamage(damage);
+    this.physics.add.overlap(this.enemies, this.player.hitboxes, (enemy: any, bullet: any) => {
+      // const damage = Math.floor(Math.random() * (20 - 5) + 1);
+      enemy.getDamage(this.player.damage);
       enemy.isAttacked = true;
       // if (!bullet.hasHit) {
       // }
@@ -74,7 +72,7 @@ export class LevelTest extends Scene {
     this.physics.add.collider(this.wallsLayer, [box1, box2]);
     this.physics.add.collider(this.player, [box1, box2]);
 
-    this.physics.add.collider(this.enemies, this.player.weapon.hitbox);
+    this.physics.add.collider(this.enemies, this.player.hitboxes);
     // this.physics.add.collider(this.player.hitbox, [box1, box2]);
 
   }

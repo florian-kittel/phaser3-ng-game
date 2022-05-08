@@ -1,12 +1,11 @@
 import { Physics } from "phaser";
+import { Weapon } from "./weapon.class";
 
 
-export class WeaponSword extends Physics.Arcade.Sprite {
-
-  isAttacking = false;
+export class WeaponSword extends Weapon {
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, 'sword', 0);
+    super(scene, x, y, 'sword');
 
     this.setData({
       config: {
@@ -19,15 +18,27 @@ export class WeaponSword extends Physics.Arcade.Sprite {
 
     const config = this.getData('config');
     const angle = config.angle;
+
+    this.damage = 25;
+
     Phaser.Math.RotateTo(this, 0, 0, angle, config.distance);
     this.rotation = angle;
-    console.log(this.data);
+
+    this.initHitbox({
+      distance: 4,
+      radius: 10,
+      delay: 50,
+      duration: 100,
+      moveX: 16
+    });
   }
 
   playWeaponAnimation() {
     if (this.isAttacking) {
       return;
     }
+
+    this.attack();
 
     const config = this.getData('config');
     this.isAttacking = true;

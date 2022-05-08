@@ -13,10 +13,18 @@ export class WeaponHammer extends Weapon {
       },
     });
 
+    this.damage = 80;
+
     const config = this.getData('config');
     this.rotateTo(config.startAngle);
 
-    this.initHitbox();
+    this.initHitbox({
+      distance: 30,
+      radius: 28,
+      delay: 180,
+      duration: 100,
+      moveX: 0
+    });
   }
 
   playWeaponAnimation() {
