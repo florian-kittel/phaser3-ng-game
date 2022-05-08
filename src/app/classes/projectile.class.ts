@@ -6,6 +6,8 @@ export class Projectile extends Physics.Arcade.Sprite {
   private hitSize = 8;
   private projectile = 'wip';
 
+  flip = false;
+
   range = 200;
   spin = false;
 
@@ -37,6 +39,7 @@ export class Projectile extends Physics.Arcade.Sprite {
     this.setVelocityX(direction.x);
     this.setVelocityY(direction.y);
 
+    this.flip = (direction.x < 0);
     this.scene.sound.play('arrowShotSfx');
 
     if (this.projectile !== 'arrow') {
@@ -72,7 +75,7 @@ export class Projectile extends Physics.Arcade.Sprite {
     var dist = Phaser.Math.Distance.BetweenPoints({ x: body.x, y: body.y }, { x: this.start.x, y: this.start.y });
 
     if (this.spin) {
-      this.angle += 25;
+      this.angle += (this.flip) ? -25 : 25;
     }
 
     if (dist > this.range) {
