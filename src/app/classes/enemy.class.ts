@@ -30,6 +30,9 @@ export class Enemy extends Actor {
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
+    this.body.bounce.set(1,1);
+    this.body.setMass(0.5);
+
     // PHYSICS MODEL
     this.setCircle(this.width / 2, 0, Math.floor(this.height / 6));
 

@@ -1,6 +1,5 @@
 import { Physics } from "phaser";
 
-
 export class WeaponSpear extends Physics.Arcade.Sprite {
 
   isAttacking = false;
@@ -10,7 +9,7 @@ export class WeaponSpear extends Physics.Arcade.Sprite {
 
     this.setData({
       config: {
-        angle: Phaser.Math.DegToRad(90),
+        angle: 0,
         startAngle: Phaser.Math.DegToRad(-120),
         endAngle: Phaser.Math.DegToRad(120),
         distance: 10,

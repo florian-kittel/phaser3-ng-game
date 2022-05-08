@@ -36,7 +36,6 @@ export class MainScene extends Scene {
     this.load.audio('pickCoinSfx', 'sounds/pick-coin.ogg');
     this.load.audio('monsterGrowSfx', 'sounds/monster-1.ogg');
     this.load.audio('monsterDeadSfx', 'sounds/monster-7.ogg');
-    this.load.audio('sledgehammer', 'sounds/sledgehammer.ogg');
     this.load.audio('impactshort', 'sounds/impactshort.ogg');
 
     this.load.spritesheet('tiles_spr', 'dungeon-16-16.png', {

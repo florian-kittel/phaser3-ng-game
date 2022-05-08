@@ -2,18 +2,14 @@ import { Scene, Tilemaps } from 'phaser';
 import { ActorKnight } from '../classes/actor-knight.class';
 import { Enemy } from '../classes/enemy.class';
 import { Player } from '../classes/player.class';
-import { Projectiles } from '../classes/projectile.class';
+import { Projectile, Projectiles } from '../classes/projectile.class';
 import { EVENTS_NAME } from '../helpers/consts';
 import { gameObjectsToObjectPoints } from '../helpers/gameobject-to-object-point';
 import { initCamera } from '../inits/set-camera';
 
-export class LevelTest extends Scene {
-  private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
-  private keyW!: Phaser.Input.Keyboard.Key;
-  private keyA!: Phaser.Input.Keyboard.Key;
-  private keyS!: Phaser.Input.Keyboard.Key;
-  private keyD!: Phaser.Input.Keyboard.Key;
+import Bullet from 'phaser3-rex-plugins/plugins/bullet.js';
 
+export class LevelTest extends Scene {
   private player!: ActorKnight;
 
   private map!: Tilemaps.Tilemap;
@@ -25,7 +21,6 @@ export class LevelTest extends Scene {
   public static enemyId = 0;
 
   private bullets!: any;
-  // private arrow!: any;
   private chests!: Phaser.GameObjects.Sprite[];
 
   RADIUS = 32;
@@ -37,61 +32,50 @@ export class LevelTest extends Scene {
   create(): void {
     this.initMap();
 
-    // KEYS
-    this.cursors = this.input.keyboard.createCursorKeys();
-    this.keyW = this.input.keyboard.addKey('W');
-    this.keyA = this.input.keyboard.addKey('A');
-    this.keyS = this.input.keyboard.addKey('S');
-    this.keyD = this.input.keyboard.addKey('D');
-
-    this.player = new ActorKnight(this, 320, 192, this.wallsLayer)
-
-      .followPointer().pointerAction();
-
-    // this.player = new ActorContainer(this, 280, 168, this.wallsLayer)
-    //   .activateFollowPointer()
-    //   .activateCurorMove();
+    this.player = new ActorKnight(this, 320, 192, this.wallsLayer).followPointer().pointerAction();
     this.physics.add.collider(this.player, this.wallsLayer);
+    this.player.setWeapon('hammer');
 
     const box1 = this.add.rectangle(230, 152, 16, 16, 0x6666ff);
-    box1.fillAlpha = 0.5;
-    const box2 = this.add.rectangle(296, 136, 16, 16, 0xff6600);
-    box2.fillAlpha = 0.5;
-
     this.physics.add.existing(box1);
+    box1.fillAlpha = 0.5;
+    box1.body.mass = 20;
+    // box1.body.setBounce();
+    const box2 = this.add.rectangle(296, 136, 16, 16, 0xff6600);
     this.physics.add.existing(box2);
+    box2.fillAlpha = 0.5;
+    box2.body.mass = 0.1;
+
 
     initCamera(this, this.player);
     this.initChests();
 
-    this.bullets = new Projectiles(this, this.wallsLayer);
+    const circle = this.add.circle(200, 200, 4, 0xff6600);
+
+    // this.bullets = new Projectiles(this, this.wallsLayer);
 
     this.initEnemies();
 
-    // this.input.on('pointerdown', () => {
-    //   this.player.attack();
-    //   // this.bullets.fireBullet(this.player.x, this.player.y, this.player.weapon.angle);
-    // });
-
-    // this.input.keyboard.on('keydown-' + 'SPACE', () => {
-    //   this.player.attack();
-    //   // this.bullets.fireBullet(this.player.x, this.player.y, this.player.weapon.angle);
-    // });
-
-    this.physics.add.overlap(this.enemies, this.player.bullets, (enemy: any, bullet: any) => {
-      if (!bullet.hasHit) {
-        const damage = Math.floor(Math.random() * (20 - 5) + 1);
-        enemy.getDamage(damage);
-        enemy.isAttacked = true;
-      }
-      bullet.justHit();
+    this.physics.add.overlap(this.enemies, this.player.weapon.hitbox, (enemy: any, bullet: any) => {
+      const damage = Math.floor(Math.random() * (20 - 5) + 1);
+      enemy.getDamage(damage);
+      enemy.isAttacked = true;
+      // if (!bullet.hasHit) {
+      // }
+      // bullet.justHit();
     });
 
-    this.physics.add.collider(this.enemies, this.bullets);
+    // this.physics.add.overlap([box1, box2], this.player.hitbox, (box: any, bullet: any) => {
+    //   // box.destroy();wa
+    //   // bullet.justHit();
+    // });
 
-    // setInterval(() => {
-    //   this.initEnemies()
-    // }, 10000);
+    this.physics.add.collider(this.enemies, this.player.bullets);
+    this.physics.add.collider(this.wallsLayer, [box1, box2]);
+    this.physics.add.collider(this.player, [box1, box2]);
+
+    this.physics.add.collider(this.enemies, this.player.weapon.hitbox);
+    // this.physics.add.collider(this.player.hitbox, [box1, box2]);
 
   }
 
@@ -138,7 +122,7 @@ export class LevelTest extends Scene {
     );
 
     this.enemies = enemiesPoints.map((enemyPoint) =>
-      new Enemy(this, enemyPoint.x, enemyPoint.y, 'chort')
+      new Enemy(this, enemyPoint.x + Math.random() * 100, enemyPoint.y, 'chort')
         .setName(enemyPoint.id.toString() + LevelTest.enemyId++)
         .setScale(1)
     );

@@ -1,99 +1,62 @@
-import { Physics, Tilemaps } from "phaser";
-import { Actor } from "./actor.class";
-
-export const weaponProperties: { [name: string]: any } = {
-  bow: {
-    radius: 16
-  },
-  knightSword: {
-    radius: 16
-  }
-}
-
-export class WeaponGroup extends Physics.Arcade.Group {
-  weaponName: string;
-  weaponConfig: any;
-
-  weaponSprite!: Phaser.GameObjects.Sprite;
-  rechtangle!: Phaser.GameObjects.Rectangle;
-
-  actor!: Actor;
-
-  constructor(
-    scene: Phaser.Scene,
-    actor: Actor,
-    weaponName: string,) {
-
-    super(scene.physics.world, scene);
-
-    this.scene = scene;
-    this.actor = actor;
-    this.weaponName = weaponName;
-
-    if (weaponProperties[weaponName]) {
-      this.weaponConfig = weaponProperties[weaponName];
-    }
-
-    this.init();
-  }
-
-  init() {
-    this.weaponSprite = this.scene.add.sprite(this.actor.x, this.actor.y, this.weaponName);
-    this.rechtangle = this.scene.add.rectangle(this.weaponSprite.x, this.weaponSprite.y, this.weaponSprite.width, this.weaponSprite.height, 0x6666ff);
-
-    this.rechtangle.fillAlpha = 0.5;
-
-    // this.weaponSprite
-  }
-}
+import { Physics } from "phaser";
 
 export class Weapon extends Physics.Arcade.Sprite {
+  isAttacking = false;
+  isFlipped = false;
+  hitbox!: any;
 
-  actor!: Actor;
-  radius = 16;
-  facingAngle = 0;
-  selectedWeapon!: any;
-
-  constructor(scene: Phaser.Scene, actor: Actor, weapon: string = 'bow') {
-    super(scene, actor.x + 16, actor.y, weapon);
+  constructor(scene: Phaser.Scene, x: number, y: number, texture: string = 'bow') {
+    super(scene, x, y, texture, 0);
     this.scene = scene;
-    this.actor = actor;
+  }
 
-    if (weaponProperties[weapon]) {
-      this.selectedWeapon = weaponProperties[weapon];
-      this.applyWeaponProperties();
-    }
+  rotateTo(angle: number) {
+    const config = this.getData('config');
+    Phaser.Math.RotateTo(this, 0, 0, Phaser.Math.DegToRad(angle), config.distance);
+    this.rotation = Phaser.Math.DegToRad(angle);
+  }
 
-    scene.add.existing(this);
-    scene.physics.add.existing(this);
+  initHitbox() {
+    this.hitbox = this.scene.add.circle(32, 0, 1, 0xff0000);
+    this.scene.physics.world.enable(this.hitbox);
 
-    // this.body.setSize(8, 8);
+    this.hitbox.setOrigin(.5, .5)
+    this.hitbox.body.setCircle(1);
+    this.hitbox.body.setImmovable();
+    this.hitbox.body.pushable = false;
+    this.hitbox.body.enable = false;
 
-    scene.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
-      this.setWeaponAngle(pointer);
+    this.hitbox.setActive(false);
+    this.hitbox.setVisible(false);
+  }
+
+  attack() {
+    this.hitbox.setActive(true);
+    this.hitbox.setVisible(true);
+
+    this.scene.tweens.addCounter({
+      from: 0,
+      to: 30,
+      delay: 180,
+      duration: 100,
+      completeDelay: 0,
+      ease: Phaser.Math.Easing.Linear,
+      repeat: 0,
+      onStart: () => {
+        this.scene.sound.play('impactshort');
+      },
+      onUpdate: (tween) => {
+        this.hitbox.body.enable = true;
+        this.hitbox.body.setCircle(tween.getValue());
+        this.hitbox.radius = tween.getValue();
+      },
+      onComplete: () => {
+        this.hitbox.radius = 1;
+        this.hitbox.body.setCircle(1);
+        this.hitbox.body.enable = false;
+        this.hitbox.setActive(false);
+        this.hitbox.setVisible(false);
+      },
     });
-
-    this.onCreate();
-  }
-
-  onCreate() { }
-
-  applyWeaponProperties() {
-    this.radius = this.selectedWeapon.radius;
-    // this.setOrigin(0.5,0.5);
-  }
-
-  override preUpdate(): void {
-    this.updatePosition();
-  }
-
-  setWeaponAngle(pointer: Phaser.Input.Pointer) {
-    this.facingAngle = Phaser.Math.Angle.Between(this.actor.x, this.actor.y, pointer.worldX, pointer.worldY);
-  }
-
-  updatePosition() {
-    this.setRotation(this.facingAngle);
-    Phaser.Math.RotateTo(this, this.actor.x, this.actor.y, this.facingAngle, this.radius);
-    this.body.reset(this.x, this.y);
   }
 }

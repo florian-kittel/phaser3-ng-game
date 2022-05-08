@@ -1,4 +1,4 @@
-import { GameObjects, Physics, Tilemaps } from "phaser";
+import { Game, GameObjects, Physics, Tilemaps } from "phaser";
 import { EVENTS_NAME, GameStatus } from "../helpers/consts";
 import { Actor } from "./actor.class";
 import { Projectiles } from "./projectile.class";
@@ -19,7 +19,7 @@ import { Text } from './text.class';
  * / Add Animation
  * / Add Projectile on the fly
  * Add Projectile type based on Weapon
- * Add diffrent Hitareas and mass
+ * Add diffrent hitboxs and mass
  */
 
 export class ActorContainer extends GameObjects.Container {
@@ -32,6 +32,8 @@ export class ActorContainer extends GameObjects.Container {
 
   collider!: Tilemaps.TilemapLayer;
   bullets!: any;
+
+  hitbox!: any;
 
   showDebugElement = false;
   triangle!: any;
@@ -68,7 +70,6 @@ export class ActorContainer extends GameObjects.Container {
 
     this.weaponContainer = this.scene.add.container(0, 0);
     this.add(this.weaponContainer);
-
 
     this.bullets = new Projectiles(this.scene, this.collider);
 
@@ -117,6 +118,11 @@ export class ActorContainer extends GameObjects.Container {
   setWeapon(weapon?: string) {
     if (this.weapon) {
       this.weaponContainer.remove(this.weapon);
+
+      if (this.hitbox) {
+        this.weaponContainer.remove(this.hitbox);
+      }
+
       this.weapon.destroy();
     }
 
@@ -142,10 +148,15 @@ export class ActorContainer extends GameObjects.Container {
     }
 
     this.weaponContainer.add(this.weapon);
+
+    if (this.weapon.hitbox) {
+      this.hitbox = this.weapon.hitbox;
+      this.weaponContainer.add(this.hitbox);
+    }
   }
 
   attack() {
-    this.bullets.fireBullet(this.x, this.y, Phaser.Math.RadToDeg(this.facingAngle));
+    // this.bullets.fireBullet(this.x, this.y, Phaser.Math.RadToDeg(this.facingAngle));
   }
 
   followPointer() {
@@ -156,6 +167,8 @@ export class ActorContainer extends GameObjects.Container {
       this.target.x = pointer.worldX;
       this.target.y = pointer.worldY;
       this.actor.flipX = this.x > pointer.worldX;
+      this.weaponContainer.scaleY = this.x > pointer.worldX ? -1 : 1;
+
       this.bringToTop(this.y > pointer.worldY ? this.actor : this.weaponContainer);
     });
 
@@ -251,10 +264,10 @@ export class ActorContainer extends GameObjects.Container {
   addDebugObject() {
     this.showDebugElement = true;
     // Background Circle
-    const obj1 = this.scene.add.circle(0, 0, 8, 0xff6600);
-    obj1.setStrokeStyle(1, 0xff0000);
-    obj1.alpha = 0.5;
-    this.add(obj1);
+    const circle = this.scene.add.circle(0, 0, 16, 0xff6600);
+    circle.setStrokeStyle(1, 0xff0000);
+    circle.alpha = 0.25;
+    this.add(circle);
 
     // Facing Triangle
     this.triangle = this.scene.add.triangle(
