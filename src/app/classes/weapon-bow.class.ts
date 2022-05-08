@@ -1,12 +1,15 @@
-import { Physics } from "phaser";
+import { ActorContainer } from "./actor-container.class";
+import { Weapon } from "./weapon.class";
 
 
-export class WeaponBow extends Physics.Arcade.Sprite {
+export class WeaponBow extends Weapon {
 
-  isAttacking = false;
+  container: ActorContainer;
+  constructor(scene: Phaser.Scene, x: number, y: number, container: ActorContainer) {
+    super(scene, x, y, 'bow');
 
-  constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, 'bow', 0);
+    this.container = container;
+    this.damage = 15;
 
     this.setData({
       config: {
@@ -19,12 +22,16 @@ export class WeaponBow extends Physics.Arcade.Sprite {
 
     const config = this.getData('config');
     this.x = config.distance;
+
+    this.initProjectile(container.collider, 'arrow', 400);
   }
 
   playWeaponAnimation() {
     if (this.isAttacking) {
       return;
     }
+
+    this.fire(this.container.x, this.container.y, Phaser.Math.RadToDeg(this.container.facingAngle));
 
     this.isAttacking = true;
 

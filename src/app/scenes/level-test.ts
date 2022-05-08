@@ -2,7 +2,6 @@ import { Scene, Tilemaps } from 'phaser';
 import { ActorKnight } from '../classes/actor-knight.class';
 import { Enemy } from '../classes/enemy.class';
 import { Player } from '../classes/player.class';
-import { Projectile, Projectiles } from '../classes/projectile.class';
 import { EVENTS_NAME } from '../helpers/consts';
 import { gameObjectsToObjectPoints } from '../helpers/gameobject-to-object-point';
 import { initCamera } from '../inits/set-camera';
@@ -18,7 +17,6 @@ export class LevelTest extends Scene {
 
   public static enemyId = 0;
 
-  private bullets!: any;
   private chests!: Phaser.GameObjects.Sprite[];
 
   RADIUS = 32;
@@ -48,32 +46,21 @@ export class LevelTest extends Scene {
     initCamera(this, this.player);
     this.initChests();
 
-    const circle = this.add.circle(200, 200, 4, 0xff6600);
-
-    // this.bullets = new Projectiles(this, this.wallsLayer);
 
     this.initEnemies();
 
     this.physics.add.overlap(this.enemies, this.player.hitboxes, (enemy: any, bullet: any) => {
-      // const damage = Math.floor(Math.random() * (20 - 5) + 1);
+
       enemy.getDamage(this.player.damage);
       enemy.isAttacked = true;
-      // if (!bullet.hasHit) {
-      // }
-      // bullet.justHit();
+      bullet.justHit();
     });
-
-    // this.physics.add.overlap([box1, box2], this.player.hitbox, (box: any, bullet: any) => {
-    //   // box.destroy();wa
-    //   // bullet.justHit();
-    // });
 
     this.physics.add.collider(this.enemies, this.player.bullets);
     this.physics.add.collider(this.wallsLayer, [box1, box2]);
     this.physics.add.collider(this.player, [box1, box2]);
 
     this.physics.add.collider(this.enemies, this.player.hitboxes);
-    // this.physics.add.collider(this.player.hitbox, [box1, box2]);
 
   }
 

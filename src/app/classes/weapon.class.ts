@@ -1,9 +1,11 @@
-import { Physics } from "phaser";
+import { Physics, Tilemaps } from "phaser";
+import { Projectiles } from "./projectile.class";
 
 export class Weapon extends Physics.Arcade.Sprite {
   isAttacking = false;
   isFlipped = false;
   hitbox!: any;
+  bullets!: any;
 
   damage = 1;
   distance = 12;
@@ -22,6 +24,14 @@ export class Weapon extends Physics.Arcade.Sprite {
     const config = this.getData('config');
     Phaser.Math.RotateTo(this, 0, 0, Phaser.Math.DegToRad(angle), config.distance);
     this.rotation = Phaser.Math.DegToRad(angle);
+  }
+
+  initProjectile(wallsLayer: Tilemaps.TilemapLayer, sprite: string, range: number, spin = false) {
+    this.bullets = new Projectiles(this.scene, sprite, range, spin, wallsLayer);
+  }
+
+  fire(x: number, y: number, angle: number) {
+    this.bullets.fireBullet(x, y, angle);
   }
 
   initHitbox({
@@ -49,6 +59,8 @@ export class Weapon extends Physics.Arcade.Sprite {
 
     this.hitbox.setActive(false);
     this.hitbox.setVisible(false);
+
+    this.hitbox.justHit = () => { };
   }
 
   attack() {

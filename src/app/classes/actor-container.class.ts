@@ -1,7 +1,6 @@
-import { Game, GameObjects, Physics, Tilemaps } from "phaser";
+import { GameObjects, Physics, Tilemaps } from "phaser";
 import { EVENTS_NAME, GameStatus } from "../helpers/consts";
 import { Actor } from "./actor.class";
-import { Projectiles } from "./projectile.class";
 import { WeaponAxe } from "./weapon-axe.class";
 import { WeaponBow } from "./weapon-bow.class";
 import { WeaponHammer } from "./weapon-hammer.class";
@@ -18,7 +17,7 @@ import { Text } from './text.class';
  * / Add cursor move
  * / Add Animation
  * / Add Projectile on the fly
- * Add Projectile type based on Weapon
+ * / Add Projectile type based on Weapon
  * Add diffrent hitboxs and mass
  */
 
@@ -76,8 +75,6 @@ export class ActorContainer extends GameObjects.Container {
     this.weaponContainer = this.scene.add.container(0, 0);
     this.add(this.weaponContainer);
 
-    this.bullets = new Projectiles(this.scene, this.collider);
-
     this.setHpValueBar();
 
     this.scene.game.events.on(EVENTS_NAME.setWeapon, this.setWeapon, this);
@@ -124,6 +121,10 @@ export class ActorContainer extends GameObjects.Container {
     if (this.weapon) {
       this.weaponContainer.remove(this.weapon);
 
+      if (this.weapon.bullets) {
+        this.weapon.bullets.destroy();
+      }
+
       if (this.hitbox) {
         this.weaponContainer.remove(this.hitbox);
         this.hitbox.destroy();
@@ -137,13 +138,13 @@ export class ActorContainer extends GameObjects.Container {
         this.weapon = new WeaponSpear(this.scene, 0, 0);
         break;
       case 'bow':
-        this.weapon = new WeaponBow(this.scene, 0, 0);
+        this.weapon = new WeaponBow(this.scene, 0, 0, this);
         break;
       case 'knightSword':
         this.weapon = new WeaponKnightSword(this.scene, 0, 0);
         break;
       case 'axe':
-        this.weapon = new WeaponAxe(this.scene, 0, 0);
+        this.weapon = new WeaponAxe(this.scene, 0, 0, this);
         break;
       case 'hammer':
         this.weapon = new WeaponHammer(this.scene, 0, 0);
@@ -162,11 +163,13 @@ export class ActorContainer extends GameObjects.Container {
       this.weaponContainer.add(this.hitbox);
       this.hitboxes.add(this.hitbox);
     }
+
+    if (this.weapon.bullets) {
+      this.hitboxes.add(this.weapon.bullets);
+    }
   }
 
-  attack() {
-    // this.bullets.fireBullet(this.x, this.y, Phaser.Math.RadToDeg(this.facingAngle));
-  }
+  attack() { }
 
   followPointer() {
     this.scene.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {

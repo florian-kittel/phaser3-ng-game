@@ -4,9 +4,16 @@ export class Projectile extends Physics.Arcade.Sprite {
   public speed = 300;
   public hasHit = false;
   private hitSize = 8;
-  private projectile = 'arrow';
+  private projectile = 'wip';
 
-  constructor(scene: Phaser.Scene, x: number, y: number, projectile: string = 'arrow', hitSize: number = 8) {
+  range = 200;
+  spin = false;
+
+  private start = {
+    x: 0, y: 0
+  }
+
+  constructor(scene: Phaser.Scene, x: number, y: number, projectile: string = 'wip', hitSize: number = 8) {
     super(scene, x, y, projectile);
     this.hitSize = hitSize;
     this.projectile = projectile;
@@ -14,14 +21,18 @@ export class Projectile extends Physics.Arcade.Sprite {
 
   fire(x: number, y: number, angle: number) {
     this.body.reset(x, y);
-    this.body.setCircle(this.hitSize)
-    // this.body.setSize(8, 8);
+    this.body.setSize(8, 8);
+
+    this.start.x = x;
+    this.start.y = y;
 
     this.setActive(true);
     this.setVisible(true);
 
+    this.state = 32;
+
     const direction = this.scene.physics.velocityFromAngle(angle, this.speed);
-    this.rotation = Phaser.Math.DegToRad(angle + 90);
+    this.rotation = Phaser.Math.DegToRad(angle);
 
     this.setVelocityX(direction.x);
     this.setVelocityY(direction.y);
@@ -33,7 +44,7 @@ export class Projectile extends Physics.Arcade.Sprite {
     }
   }
 
-  justHit() {
+  justHit(playSound = true) {
     if (this.hasHit) {
       return;
     }
@@ -43,7 +54,9 @@ export class Projectile extends Physics.Arcade.Sprite {
     this.setActive(false);
     this.setVisible(false);
 
-    this.scene.sound.play('arrowHitSfx');
+    if (playSound) {
+      this.scene.sound.play('arrowHitSfx');
+    }
 
     this.scene.time.addEvent({ delay: 120, callback: () => { this.destroy(); } });
   }
@@ -55,6 +68,16 @@ export class Projectile extends Physics.Arcade.Sprite {
       this.setActive(false);
       this.setVisible(false);
     }
+    const body = this.body as unknown as Physics.Arcade.Body;
+    var dist = Phaser.Math.Distance.BetweenPoints({ x: body.x, y: body.y }, { x: this.start.x, y: this.start.y });
+
+    if (this.spin) {
+      this.angle += 25;
+    }
+
+    if (dist > this.range) {
+      this.justHit(false);
+    }
   }
 
   onWorldBounds() {
@@ -64,19 +87,29 @@ export class Projectile extends Physics.Arcade.Sprite {
 }
 
 export class Projectiles extends Physics.Arcade.Group {
+  sprite: string = 'arrow';
+  spin: boolean = false;
+  range: number;
+
   constructor(
     scene: Phaser.Scene,
+    sprite: string,
+    range = 200,
+    spin = false,
     private worldCollider: Tilemaps.TilemapLayer,
   ) {
     super(scene.physics.world, scene);
 
+    this.sprite = sprite;
+    this.spin = spin;
+    this.range = range;
     this.createProjectiles(1);
   }
 
   createProjectiles(count: number) {
     this.createMultiple({
       frameQuantity: count,
-      key: 'projectile',
+      key: this.sprite,
       active: false,
       visible: false,
       classType: Projectile,
@@ -89,11 +122,13 @@ export class Projectiles extends Physics.Arcade.Group {
 
   fireBullet(x: number, y: number, angle: number) {
     let bullet = this.getFirstDead(false);
+    bullet.spin = this.spin;
+    bullet.range = this.range;
 
     if (bullet) {
       bullet.fire(x, y, angle);
 
-      this.scene.time.addEvent({ delay: 200, callback: () => { this.createProjectiles(1); } });
+      this.scene.time.addEvent({ delay: 100, callback: () => { this.createProjectiles(1); } });
 
       this.scene.physics.add.collider(bullet, this.worldCollider, () => {
         bullet.setActive(false);

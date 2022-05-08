@@ -1,12 +1,15 @@
-import { Physics } from "phaser";
+import { ActorContainer } from "./actor-container.class";
+import { Weapon } from "./weapon.class";
 
 
-export class WeaponAxe extends Physics.Arcade.Sprite {
+export class WeaponAxe extends Weapon {
 
-  isAttacking = false;
+  container: ActorContainer;
+  constructor(scene: Phaser.Scene, x: number, y: number, container: ActorContainer) {
+    super(scene, x, y, 'axe');
 
-  constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, 'axe', 0);
+    this.container = container;
+    this.damage = 20;
 
     this.setData({
       config: {
@@ -21,12 +24,16 @@ export class WeaponAxe extends Physics.Arcade.Sprite {
     const angle = config.angle;
     Phaser.Math.RotateTo(this, 0, 0, angle, config.distance);
     this.rotation = angle;
+
+    this.initProjectile(container.collider, 'axe', 200, true);
   }
 
   playWeaponAnimation() {
     if (this.isAttacking) {
       return;
     }
+
+    this.fire(this.container.x, this.container.y, Phaser.Math.RadToDeg(this.container.facingAngle));
 
     const config = this.getData('config');
     this.isAttacking = true;

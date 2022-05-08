@@ -36,7 +36,7 @@ export class Level1 extends Scene {
     this.initChests();
     this.initCamera();
 
-    this.bullets = new Projectiles(this, this.wallsLayer);
+    // this.bullets = new Projectiles(this, this.wallsLayer);
 
     this.initEnemies();
 

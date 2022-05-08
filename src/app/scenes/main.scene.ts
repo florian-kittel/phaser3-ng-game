@@ -44,7 +44,7 @@ export class MainScene extends Scene {
     });
 
     this.load.image('tiles', 'dungeon-16-16.png');
-    this.load.image('projectile', 'weapons/weapon_arrow.png');
+    this.load.image('arrow', 'weapons/weapon_arrow.png');
     this.load.image('bow', 'weapons/weapon_bow.png');
     this.load.image('wip', 'weapons/wip_32.png');
     this.load.image('knightSword', 'weapons/weapon_knight_sword.png');
@@ -54,7 +54,6 @@ export class MainScene extends Scene {
     this.load.image('bighammer', 'weapons/weapon_big_hammer.png');
     this.load.image('axe', 'weapons/weapon_axe.png');
 
-    this.load.image('arrow', 'green-arrow.png');
     this.load.atlas('coin', 'coin.png', 'coin-atlas.json');
   }
 
