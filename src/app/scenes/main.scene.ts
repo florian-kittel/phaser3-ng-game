@@ -36,6 +36,8 @@ export class MainScene extends Scene {
     this.load.audio('pickCoinSfx', 'sounds/pick-coin.ogg');
     this.load.audio('monsterGrowSfx', 'sounds/monster-1.ogg');
     this.load.audio('monsterDeadSfx', 'sounds/monster-7.ogg');
+    this.load.audio('sledgehammer', 'sounds/sledgehammer.ogg');
+    this.load.audio('impactshort', 'sounds/impactshort.ogg');
 
     this.load.spritesheet('tiles_spr', 'dungeon-16-16.png', {
       frameWidth: 16,
@@ -50,6 +52,7 @@ export class MainScene extends Scene {
     this.load.image('sword', 'weapons/weapon_regular_sword.png');
     this.load.image('spear', 'weapons/weapon_spear.png');
     this.load.image('hammer', 'weapons/weapon_hammer.png');
+    this.load.image('bighammer', 'weapons/weapon_big_hammer.png');
     this.load.image('axe', 'weapons/weapon_axe.png');
 
     this.load.image('arrow', 'green-arrow.png');
