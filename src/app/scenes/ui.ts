@@ -61,9 +61,9 @@ export class UIScene extends Scene {
     container.add(this.add.sprite(0, 0, 'bow', 0).setAngle(45).setInteractive());
     container.add(this.add.sprite(0, rowSize * 1, 'sword', 0).setAngle(45).setInteractive());
     container.add(this.add.sprite(0, rowSize * 2, 'knightSword', 0).setAngle(45).setInteractive());
-    container.add(this.add.sprite(0, rowSize * 3, 'spear', 0).setAngle(45).setInteractive());
-    container.add(this.add.sprite(0, rowSize * 4, 'hammer', 0).setAngle(45).setInteractive());
-    container.add(this.add.sprite(0, rowSize * 5, 'axe', 0).setAngle(45).setInteractive());
+    container.add(this.add.sprite(0, rowSize * 3, 'spear', 0).setAngle(-45).setInteractive());
+    container.add(this.add.sprite(0, rowSize * 4, 'hammer', 0).setAngle(-45).setInteractive());
+    container.add(this.add.sprite(0, rowSize * 5, 'axe', 0).setAngle(-45).setInteractive());
 
     container.setScale(2);
 
